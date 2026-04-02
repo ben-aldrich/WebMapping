@@ -1,0 +1,21 @@
+html {
+    font-family: Helvetica, Times, serif;
+    font-size: 12px;
+    line-height: 32px;
+}
+
+body {
+    text-align: center;
+}
+
+a:hover {
+    color: rebeccapurple;
+}
+
+p {
+    background-color: skyblue;
+    padding: 20px;
+    width: 320px;
+    height: 40px;
+    margin-right: 10px;
+}
