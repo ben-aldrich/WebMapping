@@ -84,7 +84,13 @@
       //   zoom: 11, // starting zoom
       // });
 
-  // Add the zoom controls here (part V)
+      // Add the zoom controls here (part V)
+      map.addControl(
+        new mapboxgl.NavigationControl({
+          showCompass: false,
+        }),
+        'bottom-left',
+      );
 
   // Add popups for markers here. Yes, before the markers!  (part IV)
 
