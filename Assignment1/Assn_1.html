@@ -92,7 +92,16 @@
         'bottom-left',
       );
 
-  // Add popups for markers here. Yes, before the markers!  (part IV)
+      // Add popups for markers here. Yes, before the markers!  (part IV)
+      var popup = new mapboxgl.Popup({
+        offset: 25,
+      }).setHTML(
+        'Hello World! Welcome to Downtown Portland. I made this map to demonstrate basic HTML and mapbox skills!',
+      );
+
+      var popup2 = new mapboxgl.Popup({
+        offset: 25,
+      }).setHTML("Powell's City of Books! I love going here on a rainy day to find a great new read.");
 
   // Add any other variables such as markers here (part III)
 
