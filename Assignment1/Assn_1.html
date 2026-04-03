@@ -61,17 +61,28 @@
       mapboxgl.accessToken =
         'pk.eyJ1IjoiYmVuYWxkcjMiLCJhIjoiY21uaHg5YnIyMDdlbzJycTRtY2R2aGRrYyJ9.sqoJ4mnoaaRnjwBUMLJitw';
 
-  // Then initialize the map here (Part 2.2)
-  var map = new mapboxgl.Map({
-    container: 'map', // id of a div on your page, where the map will be inserted
-    style: 'mapbox://styles/mapbox/navigation-day-v1', // stylesheet location
-    center: [-122.6788, 45.5212], // starting position [lng, lat] eg. [-122.6788, 45.5212]
-    zoom: 11 // starting zoom
-  });
-
-  var marker = new mapboxgl.Marker()
-          .setLngLat([-122,6788, 45.5212]) // starting position [lng, lat]
-  .addTo(map);
+      const map = new mapboxgl.Map({
+        container: 'map',
+        // Choose from Mapbox's core styles, or make your own style with Mapbox Studio
+        style: 'mapbox://styles/mapbox/standard',
+        config: {
+          basemap: {
+            theme: 'faded',
+            lightingPreset: 'night',
+            showLandmarkIcons: true,
+            show3dFacades: true,
+          }
+        },
+        zoom: 11,
+        center: [-122.6788, 45.5212]
+      });
+      // Then initialize the map here (Part 2.2)
+      // var map = new mapboxgl.Map({
+      //   container: 'map', // id of a div on your page, where the map will be inserted
+      //   style: 'mapbox://styles/mapbox/navigation-day-v1', // stylesheet location
+      //   center: [-122.6788, 45.5212], // starting position [lng, lat] eg. [-122.6788, 45.5212]
+      //   zoom: 11, // starting zoom
+      // });
 
   // Add the zoom controls here (part V)
 
