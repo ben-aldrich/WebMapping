@@ -1,0 +1,187 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Wildfire Cameras in the PNW</title>
+    <link rel="icon" type="image/x-icon" href="./Ohaz_Logo_lrg_font_Y.png" />
+    <meta
+      name="viewport"
+      content="initial-scale=1,maximum-scale=1,user-scalable=no"
+    />
+    <!--    1.1.  Include the reference to the Mapbox JavaScript here in the <head> of the page  -->
+    <script src="https://api.tiles.mapbox.com/mapbox-gl-js/v3.2.0/mapbox-gl.js"></script>
+
+    <!--    1.2 Include the reference to the Mapbox CSS here in the <head> of the page  -->
+    <link
+      href="https://api.tiles.mapbox.com/mapbox-gl-js/v3.2.0/mapbox-gl.css"
+      rel="stylesheet"
+    />
+
+    <style>
+      /* 1.4 Insert the CSS code here between the <style> tags */
+      header{
+          font-weight:bold;
+          font-family: Futura;
+          text-align: center;
+          color: white;
+      }
+      body {
+        margin: 50px;
+        padding: 0;
+        background: darkgreen;
+      }
+      #map1,
+      #map2,
+      #map3 {
+        position: relative;
+        height: 400px;
+        width: 100%;
+      }
+      /* 2.5.2 Insert additional CSS code here between the <style> tags */
+      h1, h2{
+        font-family: Futura, Helvetica, Arial, sans-serif;
+        color: white;
+      }
+      h4{
+          font-family: Futura, Helvetica, Arial, italic;
+          color: #daa82b;
+      }
+      h4 a{
+          color: inherit;
+      }
+    </style>
+  </head>
+
+  <body>
+    <!-- 1.3 Insert the div for the structure of the page here in the <body> of the page -->
+    <header>
+        <h1>Wildfire Cameras in the Pacific Northwest</h1>
+        <p>Welcome to my site! This page highlights some of my favorite wildfire cameras in the region. Click on each
+        pin to learn more, or the yellow text for a live view!</p>
+    </header>
+    <br>
+    <hr>
+
+    <h2>Camera 1: PLC</h2>
+    <h4>
+        <a href="https://alertwest.live/cam-console/11132">Campus + City Views</a>
+    </h4>
+    <div id="map1"></div>
+    <hr>
+
+    <h2>Camera 2: Mary's Peak</h2>
+    <h4>
+        <a href="https://alertwest.live/cam-console/11126">Coast Range Wilderness</a>
+    </h4>
+    <div id="map2"></div>
+    <hr>
+
+    <h2>Camera 3: Timberline</h2>
+    <h4>
+        <a href="https://alertwest.live/cam-console/11141">Towering Stratovolcano in the Cascades</a>
+    </h4>
+    <div id="map3"></div>
+    <hr>
+
+    <script>
+      /* Insert the JavaScript within the <script> tags, within the body */
+      // 2.1 Start with the Mapbox access token
+      mapboxgl.accessToken =
+        'pk.eyJ1IjoiYmVuYWxkcjMiLCJhIjoiY21uaHg5YnIyMDdlbzJycTRtY2R2aGRrYyJ9.sqoJ4mnoaaRnjwBUMLJitw';
+
+      // 2.2 Then initialize the first map
+      var map = new mapboxgl.Map({
+        container: 'map1', // id of a div on your page, where the map will be inserted
+        style: 'mapbox://styles/mapbox/standard', // the style URL 'mapbox://styles/mapbox/streets-v11'
+        center: [-123.07834, 44.04415], // starting position [lng, lat] eg. [-122.6788, 45.5212]
+        zoom: 15, // starting zoom
+      });
+
+      // 2.3 Add any other variables (such as popups and markers) to the first map
+      var popup = new mapboxgl.Popup().setText(
+        "This is our on-campus site, PLC! Predictably, it's on top of Prince Lucien Campbell hall" +
+          ' here on campus. We use it for an easy-to-access test site for new equipment, and a reciever for a ' +
+          'couple other local cameras in the Willamette Valley.',
+      );
+
+      var marker = new mapboxgl.Marker({ color: 'red' })
+        .setLngLat([-123.07834, 44.04415]) // starting position [lng, lat]
+        .setPopup(popup) //add the popup named "popup" to this marker
+        .addTo(map); // add it to the map with the ID "map"
+
+      // 2.4 Add arguments to disable the map interactivity here
+      // Disable drag and zoom handlers.
+      // Disable drag and zoom handlers.
+      map.dragPan.disable();
+      map.scrollZoom.disable();
+      map.boxZoom.disable();
+      map.dragRotate.disable();
+      map.keyboard.disable();
+      map.doubleClickZoom.disable();
+      map.touchZoomRotate.disable(); // interesting that touch interactivity is set as its own setting!
+      map.touchZoomRotate.disableRotation();
+
+      // 2.5.3 Then initialize the 2nd map
+      var map2 = new mapboxgl.Map({
+        container: 'map2', // id of a div on your page, where the map will be inserted
+        style: 'mapbox://styles/mapbox/outdoors-v12', // the style URL 'mapbox://styles/mapbox/streets-v11'
+        center: [-123.572427, 44.507401], // starting position [lng, lat] eg. [-122.6788, 45.5212]
+        zoom: 11, // starting zoom
+      });
+
+      // 2.5.4 Add any other variables (such as markers) to the second map
+      var popup2 = new mapboxgl.Popup().setText(
+        "This is my second camera point at Mary's Peak, the highest point in the Oregon Coast Range. The " +
+          'Kalapuya name for the mountain is chatímanwi. For this map, I chose the outdoor style to match ' +
+          'the mountainous terrain!',
+      );
+
+      var marker2 = new mapboxgl.Marker({ color: 'blue' })
+        .setLngLat([-123.572427, 44.507401]) // starting position [lng, lat]
+        .setPopup(popup2) //add the popup to the marker
+        .addTo(map2); // id it to the map with the ID *map2*
+
+      // 2.5.5 Add arguments to disable the second map's interactivity here
+      map2.dragPan.disable();
+      map2.scrollZoom.disable();
+      map2.boxZoom.disable();
+      map2.dragRotate.disable();
+      map2.keyboard.disable();
+      map2.doubleClickZoom.disable();
+      map2.touchZoomRotate.disable();
+      map2.touchZoomRotate.disableRotation();
+      // 2.6 Change the map pointers
+
+      var map3 = new mapboxgl.Map({
+        container: 'map3',
+        style: 'mapbox://styles/mapbox/satellite-v9',
+        center: [-121.714497, 45.333059],
+        zoom: 10,
+      });
+
+      var popup3 = new mapboxgl.Popup().setText(
+        'This is my third highlighted site, Timberline, right on the slopes of Mt. Hood! The name' +
+          ' comes from the historic Timberline Lodge and ski resort. I chose the bare satellite basemap so ' +
+          'you can see the dramatic glaciated terrain!',
+      );
+
+      var marker3 = new mapboxgl.Marker({ color: 'green' })
+        .setLngLat([-121.714497, 45.333059])
+        .setPopup(popup3)
+        .addTo(map3);
+
+      map3.dragPan.disable();
+      map3.scrollZoom.disable();
+      map3.boxZoom.disable();
+      map3.dragRotate.disable();
+      map3.keyboard.disable();
+      map3.doubleClickZoom.disable();
+      map3.touchZoomRotate.disable();
+      map3.touchZoomRotate.disableRotation();
+
+      map.getCanvas().style.cursor = 'auto';
+      map2.getCanvas().style.cursor = 'auto';
+      map3.getCanvas().style.cursor = 'auto'; // almost missed this! whoops
+    </script>
+  </body>
+</html>
