@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html>
+<html lang ='en'>
 <head>
     <meta charset='utf-8' /> 
     <title>Ben's Duck Journey</title>
@@ -39,8 +39,6 @@
     
     <script>
         mapboxgl.accessToken = 'pk.eyJ1IjoiYmVuYWxkcjMiLCJhIjoiY21uaHg5YnIyMDdlbzJycTRtY2R2aGRrYyJ9.sqoJ4mnoaaRnjwBUMLJitw';
-        /* You pushed your API key to all of us! I changed it here so we don't eat up all your tokens but it was yours
-        in the default code skeleton. */
         // initialize the map
         var map = new mapboxgl.Map({
             container: 'map',
@@ -73,8 +71,8 @@
         // add a 'Listener' to the div with the ID 'fly', that's the button.
        document.getElementById('fly').addEventListener('click', function () {
             map.flyTo({
-                center: [-97.70,30.30], 
-                //zoom: 9,
+                center: [2.2945,48.8584],
+                zoom: 15,
                 //speed: 0.2
             });
         });
