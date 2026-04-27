@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Temperature Change by County</title>
+    <meta
+      name="viewport"
+      content="initial-scale=1,maximum-scale=1,user-scalable=no"
+    />
+    <!--      Mapbox JS initialization-->
+    <link
+      href="https://api.tiles.mapbox.com/mapbox-gl-js/v3.22.0/mapbox-gl.css"
+      rel="stylesheet"
+    />
+    <script src="https://api.tiles.mapbox.com/mapbox-gl-js/v3.22.0/mapbox-gl.js"></script>
+    <style>
+      body {
+        margin: 0;
+        padding: 0;
+      }
+      #map {
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        width: 100%;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="map"></div>
+    <script>
+      // Set your Mapbox access token here
+      mapboxgl.accessToken =
+        'pk.eyJ1IjoiYmVuYWxkcjMiLCJhIjoiY21uaHg5YnIyMDdlbzJycTRtY2R2aGRrYyJ9.sqoJ4mnoaaRnjwBUMLJitw';
+
+      const map = new mapboxgl.Map({
+        container: 'map',
+        style: 'mapbox://styles/benaldr3/cmohmsmq1002w01sq4phd35tv',
+        center: [-100.486, 38.736],
+        zoom: 3,
+      });
+      // Nav controls
+      const nav = new mapboxgl.NavigationControl({
+        visualizePitch: true,
+      });
+      map.addControl(nav, 'top-left');
+    </script>
+  </body>
+</html>
