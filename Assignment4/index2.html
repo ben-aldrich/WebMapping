@@ -37,8 +37,10 @@
       const map = new mapboxgl.Map({
         container: 'map',
         style: 'mapbox://styles/benaldr3/cmohrnmr7000201si2idf9ntk',
-        center: [190, 35],
+        center: [190, 15],
         zoom: 2,
+        maxZoom: 5,
+        minZoom:0
       });
       const nav = new mapboxgl.NavigationControl({
         visualizePitch: true,
