@@ -16,9 +16,12 @@
     />
 
     <!--   Insert Link to Google font-->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Chewy&display=swap" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Chewy&display=swap"
+      rel="stylesheet"
+    />
     <style>
       /* CSS code between the <style> tags */
       body {
@@ -37,7 +40,7 @@
       .mapboxgl-popup {
         min-width: 325px;
         /*add the css for the popup font here */
-        font-family: "Chewy", cursive;
+        font-family: 'Chewy', cursive;
       }
 
       /* The CSS for the "Fly" buttons  */
@@ -59,21 +62,21 @@
       }
 
       /* Insert the CSS for the image here */
-       .popupImage {
-         width: 100%;
-       }
-       .mapboxgl-marker > svg,
-       .mapboxgl-marker > img {
-         transition: transform 120ms ease;
-         transform-origin: 50% 50%;
-         cursor: pointer;
-       }
-       .mapboxgl-marker:hover > svg,
-       .mapboxgl-marker:hover > img {
-         transform: scale(1.15);
-       }
+      .popupImage {
+        width: 100%;
+      }
+      .mapboxgl-marker > svg,
+      .mapboxgl-marker > img {
+        transition: transform 120ms ease;
+        transform-origin: 50% 50%;
+        cursor: pointer;
+      }
+      .mapboxgl-marker:hover > svg,
+      .mapboxgl-marker:hover > img {
+        transform: scale(1.15);
+      }
 
-       /* Insert the CSS for the button here */
+      /* Insert the CSS for the button here */
       button {
         font-family: 'Chewy', cursive;
         font-weight: normal;
@@ -86,9 +89,27 @@
     <div id="map"></div>
 
     <!--  Insert the button elements here  -->
-    <button class="fly" id="PortlandButton" style="background: #FF5A36; border-color: #FF5A36;">Jump to Portland</button>
-    <button class="fly" id="LondonButton" style="background: #A9212B; border-color: #A9212B;">Jump to London</button>
-    <button class="fly" id="YellowstoneButton" style="background: #FCA40C; border-color: #FCA40C;">Jump to Yellowstone</button>
+    <button
+      class="fly"
+      id="PortlandButton"
+      style="background: #ff5a36; border-color: #ff5a36"
+    >
+      Jump to Portland
+    </button>
+    <button
+      class="fly"
+      id="LondonButton"
+      style="background: #a9212b; border-color: #a9212b"
+    >
+      Jump to London
+    </button>
+    <button
+      class="fly"
+      id="YellowstoneButton"
+      style="background: #fca40c; border-color: #fca40c"
+    >
+      Jump to Yellowstone
+    </button>
 
     <script>
       // Insert the JavaScript within the <script> tags, within the body
@@ -187,16 +208,16 @@
             zoom: 9,
           });
         });
-// Add a 'Listener' to the button element with the ID 'YellowstoneButton'.
+      // Add a 'Listener' to the button element with the ID 'YellowstoneButton'.
       document
-              .getElementById('YellowstoneButton')
-              .addEventListener('click', function() {
-                map.flyTo({
-                  center: [-110.74524187568, 44.706216445069],
-                  zoom: 10,
-                });
-               });
-       /***  END LISTENERS  ***/
+        .getElementById('YellowstoneButton')
+        .addEventListener('click', function () {
+          map.flyTo({
+            center: [-110.74524187568, 44.706216445069],
+            zoom: 10,
+          });
+        });
+      /***  END LISTENERS  ***/
     </script>
   </body>
 </html>
