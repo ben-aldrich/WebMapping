@@ -16,14 +16,18 @@
     />
 
     <!--   Insert Link to Google font-->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Chewy&display=swap" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Chewy&display=swap"
+      rel="stylesheet"
+    />
     <style>
       /* CSS code between the <style> tags */
       body {
         margin: 0;
         padding: 0;
+        text-align: center;
       }
       #map {
         position: absolute;
@@ -36,14 +40,14 @@
       .mapboxgl-popup {
         min-width: 325px;
         /*add the css for the popup font here */
-        font-family: "Chewy", cursive;
+        font-family: 'Chewy', cursive;
       }
 
       /* The CSS for the "Fly" buttons  */
       .fly {
         display: inline-block; /* displays over the map */
         position: relative; /* displays over the map */
-        margin: 0 auto;
+        margin: 10px auto;
         width: 30%; /* width of parent div */
         padding: 10px;
         border-style: solid;
@@ -53,7 +57,7 @@
         text-align: center;
         font-weight: bold;
         color: oldlace;
-        background: DarkRed;
+        background: RoyalBlue;
         cursor: pointer;
       }
 
@@ -61,6 +65,17 @@
       .popupImage {
         width: 100%;
       }
+      .mapboxgl-marker > svg,
+      .mapboxgl-marker > img {
+        transition: transform 120ms ease;
+        transform-origin: 50% 50%;
+        cursor: pointer;
+      }
+      .mapboxgl-marker:hover > svg,
+      .mapboxgl-marker:hover > img {
+        transform: scale(1.15);
+      }
+
       /* Insert the CSS for the button here */
       button {
         font-family: 'Chewy', cursive;
@@ -74,9 +89,27 @@
     <div id="map"></div>
 
     <!--  Insert the button elements here  -->
-    <button class="fly" id="PortlandButton">Jump to Portland</button>
-    <button class="fly" id="LondonButton">Jump to London</button>
-    <button class="fly" id="YellowstoneButton">Jump to Yellowstone</button>
+    <button
+      class="fly"
+      id="PortlandButton"
+      style="background: #ff5a36; border-color: #ff5a36"
+    >
+      Jump to Portland
+    </button>
+    <button
+      class="fly"
+      id="LondonButton"
+      style="background: #a9212b; border-color: #a9212b"
+    >
+      Jump to London
+    </button>
+    <button
+      class="fly"
+      id="YellowstoneButton"
+      style="background: #fca40c; border-color: #fca40c"
+    >
+      Jump to Yellowstone
+    </button>
 
     <script>
       // Insert the JavaScript within the <script> tags, within the body
@@ -99,7 +132,7 @@
       popup1_content +=
         '<iframe width="300px" src="https://www.youtube.com/embed/z1AdmS-LqyA" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>';
       popup1_content +=
-        'Source: Ian Lind, <a href="https://www.youtube.com/embed/z1AdmS-LqyA">YouTube</a>';
+        'Source: Ian Lind, <a href="https://www.youtube.com/embed/z1AdmS-LqyA" target="_blank">YouTube</a>';
 
       var popup1 = new mapboxgl.Popup({ minWidth: '300px' }).setHTML(
         popup1_content,
@@ -127,44 +160,40 @@
       popup3_content +=
         '<img class="popupImage" src="https://www.nps.gov/yell/learn/photosmultimedia/images/ndh-yell-bison-gibbon_2.jpg?maxwidth=1300&maxheight=1300&autorotate=false&format=webp" target="_blank" alt="Herd of bison standing by a river in Yellowstone National Park.">';
       popup3_content +=
-        'Source: NPS/Neal Herbert, <a href="https://www.nps.gov/yell/learn/photosmultimedia/sound-bisoneating.html">NPS</a>';
+        'Source: NPS/Neal Herbert, <a href="https://www.nps.gov/yell/learn/photosmultimedia/sound-bisoneating.html" target="_blank">NPS</a>';
 
       var popup3 = new mapboxgl.Popup({ minWidth: '300px' }).setHTML(
         popup3_content,
       );
       /***  END POPUPS  ***/
-
       /***  MARKERS  ***/
       // Part A II. markers go here
       // Marker 1 - Portland
-      var marker1 = new mapboxgl.Marker({ color: 'DarkRed' })
+      var marker1 = new mapboxgl.Marker({ color: '#FF5A36' })
         .setLngLat([-122.6788, 45.5212]) // Portland
         //add .setPopup here
         .setPopup(popup1)
         .addTo(map);
 
       // Marker 2 - London
-      var marker2 = new mapboxgl.Marker({ color: 'DarkRed' })
+      var marker2 = new mapboxgl.Marker({ color: '#A9212B' })
         .setLngLat([-0.1534307, 51.501223]) // London
         .setPopup(popup2)
         .addTo(map);
 
       // Marker 3 - Yellowstone
-      var marker3 = new mapboxgl.Marker({ color: 'DarkRed' })
+      var marker3 = new mapboxgl.Marker({ color: '#FCA40C' })
         .setLngLat([-110.74524187568, 44.706216445069]) // Yellowstone
         .setPopup(popup3)
         .addTo(map);
       /***  END MARKERS  ***/
-
-      /***  END MARKERS  ***/
-
       /***  LISTENERS  ***/
       // Part IX 2. listeners go here
       // Add a 'Listener' to the button element with the ID 'LondonButton'.
       document
         .getElementById('LondonButton')
         .addEventListener('click', function () {
-          map.jumpTo({
+          map.flyTo({
             center: [-0.1534307, 51.501223],
             zoom: 11,
           });
@@ -174,21 +203,20 @@
       document
         .getElementById('PortlandButton')
         .addEventListener('click', function () {
-          map.jumpTo({
+          map.flyTo({
             center: [-122.6788, 45.5212],
             zoom: 9,
           });
         });
-// Add a 'Listener' to the button element with the ID 'YellowstoneButton'.
+      // Add a 'Listener' to the button element with the ID 'YellowstoneButton'.
       document
-              .getElementById('YellowstoneButton')
-              .addEventListener('click', function() {
-                map.jumpTo({
-                  center: [-110.74524187568, 44.706216445069],
-                  zoom: 10,
-                });
-              });
-
+        .getElementById('YellowstoneButton')
+        .addEventListener('click', function () {
+          map.flyTo({
+            center: [-110.74524187568, 44.706216445069],
+            zoom: 10,
+          });
+        });
       /***  END LISTENERS  ***/
     </script>
   </body>
