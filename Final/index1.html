@@ -2,96 +2,63 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Wildfire in the PNW</title>
-  <meta name="viewport" content="initial-scale=1,maximum-scale=1,user-scalable=no" />
   <script src="https://api.mapbox.com/mapbox-gl-js/v3.24.0/mapbox-gl.js"></script>
-  <link href="https://api.tiles.mapbox.com/mapbox-gl-js/v3.24.0/mapbox-gl.css" rel="stylesheet" />
+  <link href="https://api.mapbox.com/mapbox-gl-js/v3.24.0/mapbox-gl.css" rel="stylesheet" />
   <style>
     * {
-      margin: 0;
-      padding: 0;
       box-sizing: border-box;
     }
 
+    html,
     body {
-      font-family: 'Courier Prime', monospace;
-      background: #0f0f0f;
-      color: #fff;
+      margin: 0;
+      width: 100%;
+      height: 100%;
       overflow: hidden;
-      position: relative;
+      background: #0f0f0f;
+      font-family: 'Courier Prime', monospace;
     }
 
-    body::before {
-      content: '';
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background:
-              repeating-linear-gradient(
-                      0deg,
-                      rgba(0, 0, 0, 0.03),
-                      rgba(0, 0, 0, 0.03) 1px,
-                      transparent 1px,
-                      transparent 2px
-              );
-      pointer-events: none;
-      z-index: 1;
-    }
-
-    .container {
-      position: relative;
-      height: 100vh;
-      width: 100%;
-      z-index: 2;
-    }
-
-    /* MAP */
     #map {
-      width: 100%;
-      height: 100%;
-      position: relative;
+      position: absolute;
+      inset: 0;
     }
 
-    /* SIDEBAR - floating overlay */
     .sidebar {
-      position: fixed;
+      position: absolute;
       top: 20px;
       left: 20px;
-      width: auto;
-      background: transparent;
-      backdrop-filter: none;
-      padding: 0;
-      overflow-y: visible;
-      display: flex;
-      flex-direction: column;
-      gap: 16px;
-      z-index: 100;
+      z-index: 2;
+      width: 260px;
+      padding: 12px 14px;
+      color: #fff;
+      background: rgba(0, 0, 0, 0.62);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      backdrop-filter: blur(4px);
     }
 
-    /* TITLE - distinctive */
     .title {
-      font-family: 'Poppins', sans-serif;
-      font-size: 24px;
-      font-weight: 900;
-      letter-spacing: -0.5px;
+      margin-bottom: 10px;
       color: #ff4444;
-      line-height: 1.1;
+      font-family: 'Poppins', system-ui, sans-serif;
+      font-size: 22px;
+      font-weight: 900;
+      line-height: 1.05;
+      letter-spacing: -0.5px;
       text-transform: uppercase;
     }
 
-    /* YEAR RANGE SECTION */
     .year-section {
       display: flex;
       flex-direction: column;
       gap: 8px;
-      width: 240px;
     }
 
     .year-label {
       font-size: 10px;
-      color: #888;
+      color: #aaa;
       text-transform: uppercase;
       letter-spacing: 1px;
       font-weight: 700;
@@ -99,126 +66,76 @@
 
     .year-slider {
       width: 100%;
-      height: 2px;
-      border-radius: 1px;
-      background: rgba(255, 68, 68, 0.2);
-      outline: none;
       -webkit-appearance: none;
       appearance: none;
+      height: 3px;
+      border-radius: 999px;
+      background: rgba(255, 68, 68, 0.25);
+      outline: none;
     }
 
     .year-slider::-webkit-slider-thumb {
       -webkit-appearance: none;
       appearance: none;
-      width: 10px;
-      height: 10px;
+      width: 12px;
+      height: 12px;
       border-radius: 50%;
       background: #ff4444;
       cursor: grab;
       box-shadow: 0 0 8px rgba(255, 68, 68, 0.4);
     }
 
-    .year-slider::-webkit-slider-thumb:active {
-      cursor: grabbing;
-    }
-
     .year-slider::-moz-range-thumb {
-      width: 10px;
-      height: 10px;
+      width: 12px;
+      height: 12px;
+      border: 0;
       border-radius: 50%;
       background: #ff4444;
       cursor: grab;
-      border: none;
       box-shadow: 0 0 8px rgba(255, 68, 68, 0.4);
     }
 
     .year-display {
+      font-size: 12px;
+      color: #ddd;
       display: flex;
       justify-content: space-between;
-      font-size: 11px;
-      color: #aaa;
     }
 
     .year-marks {
       display: flex;
       justify-content: space-between;
       font-size: 9px;
-      color: #666;
+      color: #777;
     }
 
-    .wildfire-dot {
-      background: #cc4444;
-      box-shadow: 0 0 4px rgba(204, 68, 68, 0.4);
+    .hint {
+      position: absolute;
+      right: 20px;
+      top: 20px;
+      z-index: 2;
+      max-width: 320px;
+      padding: 12px 14px;
+      color: #fff;
+      background: rgba(0, 0, 0, 0.62);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      font-size: 13px;
+      line-height: 1.4;
     }
 
-    /* POPUP */
-    .mapboxgl-popup-content {
-      background: rgba(15, 15, 15, 0.92) !important;
-      border-left: 3px solid #ff4444;
-      color: #ddd;
-      font-size: 11px;
-      padding: 11px 13px;
-      border-radius: 0;
-      font-family: 'Courier Prime', monospace;
-    }
-
-    .mapboxgl-popup-close-button {
-      color: #ff4444;
-      font-size: 18px;
-      padding: 0 5px;
-    }
-
-    /* CONTROLS */
-    .mapboxgl-ctrl {
-      background: rgba(20, 20, 20, 0.85) !important;
-      backdrop-filter: blur(4px);
-      border-radius: 0;
-      border: 1px solid rgba(255, 68, 68, 0.2);
-    }
-
-    .mapboxgl-ctrl button {
-      background: transparent !important;
-      border: none !important;
-      color: #ff4444 !important;
-      transition: all 0.2s;
-      width: 36px;
-      height: 36px;
-    }
-
-    .mapboxgl-ctrl button:hover {
-      background: rgba(255, 68, 68, 0.1) !important;
-      color: #ffaa88 !important;
-    }
-
-    .mapboxgl-ctrl-bottom-left {
-      bottom: 20px !important;
-      left: 20px !important;
-    }
-
-    /* MOBILE */
-    @media (max-width: 768px) {
-      .sidebar {
-        width: 280px;
-        top: 10px;
-        left: 10px;
-      }
-
-      .title {
-        font-size: 20px;
-      }
-    }
+    /* Popup styles intentionally omitted while the map is being stabilized. */
   </style>
 </head>
 <body>
-<div class="container">
   <div id="map"></div>
-  <div class="sidebar">
-    <div class="title">wildfire<br/>in the pnw</div>
 
+  <div class="sidebar">
+    <div class="title">wildfire<br />in the pnw</div>
     <div class="year-section">
-      <div class="year-label">drag to shift years</div>
+      <label class="year-label" for="yearSlider">drag to shift years</label>
       <input type="range" min="1980" max="2025" value="2022" class="year-slider" id="yearSlider" />
       <div class="year-display">
+        <span>Year</span>
         <span id="yearValue">2022</span>
       </div>
       <div class="year-marks">
@@ -229,126 +146,158 @@
       </div>
     </div>
   </div>
-</div>
 
-<script>
-  mapboxgl.accessToken = 'pk.eyJ1IjoiYmVuYWxkcjMiLCJhIjoiY21uaHg5YnIyMDdlbzJycTRtY2R2aGRrYyJ9.sqoJ4mnoaaRnjwBUMLJitw';
+  <div class="hint">
+    Open with <code>?tileset=username.tilesetid&amp;source-layer=layername</code>.
+    The slider is display-only; it does not filter the map.
+  </div>
 
-  const map = new mapboxgl.Map({
-    container: 'map',
-    style: 'mapbox://styles/mapbox/dark-v11',
-    center: [-120.5, 45.5],
-    zoom: 6
-  });
+  <script>
+    mapboxgl.accessToken = 'pk.eyJ1IjoiYmVuYWxkcjMiLCJhIjoiY21uaHg5YnIyMDdlbzJycTRtY2R2aGRrYyJ9.sqoJ4mnoaaRnjwBUMLJitw';
 
-  map.addControl(new mapboxgl.NavigationControl({ showCompass: false }), 'bottom-left');
+    const params = new URLSearchParams(window.location.search);
+    const tilesetId = (params.get('tileset') || 'benaldr3.ce3ktv16').trim();
+    const sourceLayer = (params.get('source-layer') || params.get('layer') || 'data').trim();
+    const map = new mapboxgl.Map({
+      container: 'map',
+      style: 'mapbox://styles/mapbox/dark-v11',
+      center: [-120.5, 45.5],
+      zoom: 6
+    });
 
-  let currentYear = 2022;
+    map.addControl(new mapboxgl.NavigationControl({ showCompass: false }), 'bottom-left');
 
-  const yearSlider = document.getElementById('yearSlider');
-  const yearValue  = document.getElementById('yearValue');
+    const yearSlider = document.getElementById('yearSlider');
+    const yearValue = document.getElementById('yearValue');
+    yearSlider.addEventListener('input', (e) => {
+      yearValue.textContent = e.target.value;
+    });
 
-  function makeYearFilter(year) {
-    const start = year * 10000 + 101;    // e.g. 20220101
-    const end   = year * 10000 + 1231;   // e.g. 20221231
-    return ['all',
-      ['>=', ['get', 'attr_Cre_1'], start],
-      ['<=', ['get', 'attr_Cre_1'], end]
-    ];
-  }
+    const demoData = {
+      type: 'FeatureCollection',
+      features: [
+        {
+          type: 'Feature',
+          properties: { name: 'Demo Fire A' },
+          geometry: {
+            type: 'Polygon',
+            coordinates: [[[-120.8, 45.2], [-120.2, 45.2], [-120.2, 45.7], [-120.8, 45.7], [-120.8, 45.2]]]
+          }
+        },
+        {
+          type: 'Feature',
+          properties: { name: 'Demo Fire B' },
+          geometry: {
+            type: 'Polygon',
+            coordinates: [[[-121.5, 45.9], [-121.0, 45.9], [-121.0, 46.25], [-121.5, 46.25], [-121.5, 45.9]]]
+          }
+        }
+      ]
+    };
 
-  function applyYearFilter(year) {
-    const f = makeYearFilter(year);
-    if (map.getLayer('wildfire-areas'))   map.setFilter('wildfire-areas', f);
-    if (map.getLayer('wildfire-outline')) map.setFilter('wildfire-outline', f);
-  }
+    function addLayersToMap(layerName) {
+      if (!map.getLayer('wildfire-fill')) {
+        map.addLayer({
+          id: 'wildfire-fill',
+          type: 'fill',
+          source: 'wildfires',
+          ...(layerName ? { 'source-layer': layerName } : {}),
+          paint: {
+            'fill-color': '#cc4444',
+            'fill-opacity': 0.6
+          }
+        });
+      }
 
-  yearSlider.addEventListener('input', (e) => {
-    currentYear = parseInt(e.target.value);
-    yearValue.textContent = currentYear;
-    applyYearFilter(currentYear);
-  });
+      if (!map.getLayer('wildfire-outline')) {
+        map.addLayer({
+          id: 'wildfire-outline',
+          type: 'line',
+          source: 'wildfires',
+          ...(layerName ? { 'source-layer': layerName } : {}),
+          paint: {
+            'line-color': '#ffb3b3',
+            'line-width': 1.5,
+            'line-opacity': 0.8
+          }
+        });
+      }
+
+      map.on('mouseenter', 'wildfire-fill', () => {
+        map.getCanvas().style.cursor = 'pointer';
+      });
+
+      map.on('mouseleave', 'wildfire-fill', () => {
+        map.getCanvas().style.cursor = '';
+      });
+
+      map.on('click', 'wildfire-fill', (e) => {
+        const props = (e.features && e.features[0] && e.features[0].properties) || {};
+        const title = props.name || props.title || props.id || 'Feature';
+        new mapboxgl.Popup({ offset: 20 })
+          .setLngLat(e.lngLat)
+          .setHTML(`<strong>${title}</strong>`)
+          .addTo(map);
+      });
+    }
 
     map.on('load', () => {
-      console.log('Map loaded - creating sample wildfire data');
+      const tilesetUrl = `mapbox://${tilesetId}`;
+      let usedFallback = false;
 
-      // NOTE: Currently using sample GeoJSON data.
-      // To use your Mapbox tileset (benaldr3.ce3ktv16) instead:
-      // 1. Publish the tileset in Mapbox Studio
-      // 2. Replace the 'Add GeoJSON source' block below with:
-      //    map.addSource('wildfires', { type: 'vector', url: 'mapbox://benaldr3.ce3ktv16' });
-      // 3. Add 'source-layer': 'data' to each layer below
+      const loadDemoFallback = () => {
+        if (usedFallback) return;
+        usedFallback = true;
 
-      // Sample wildfire GeoJSON data for demonstratio
+        try {
+          if (map.getLayer('wildfire-fill')) map.removeLayer('wildfire-fill');
+          if (map.getLayer('wildfire-outline')) map.removeLayer('wildfire-outline');
+          if (map.getSource('wildfires')) map.removeSource('wildfires');
+        } catch (err) {
+          console.warn('Cleanup before fallback failed:', err);
+        }
 
-     // Add GeoJSON source
-     map.addSource('wildfires', { type: 'geojson', url: 'mapbox://benaldr3.ce3ktv16' });
-
-     // Timeout to detect loading issues
-     const timeout = setTimeout(() => {
-       console.error('⚠️ Unable to add layers within 10 seconds');
-     }, 10000);
-
-     // For GeoJSON, we can add layers immediately
-     setTimeout(() => {
-       if (!map.getLayer('wildfire-areas')) {
-         map.addLayer({
-           id: 'wildfire-areas',
-           type: 'fill',
-           source: 'wildfires',
-           filter: makeYearFilter(currentYear),
-           paint: {
-             'fill-color': '#cc4444',
-             'fill-opacity': 0.65
-           }
-         });
-         console.log('✓ wildfire-areas layer added');
-       }
-
-       if (!map.getLayer('wildfire-outline')) {
-         map.addLayer({
-           id: 'wildfire-outline',
-           type: 'line',
-           source: 'wildfires',
-           filter: makeYearFilter(currentYear),
-           paint: {
-             'line-color': '#ff6655',
-             'line-width': 1.5,
-             'line-opacity': 0.6
-           }
-         });
-         console.log('✓ wildfire-outline layer added');
-       }
-
-       clearTimeout(timeout);
-       console.log('✓ All layers loaded successfully');
-
-       // Add event listeners
-       map.on('mouseenter', 'wildfire-areas', () => {
-         map.getCanvas().style.cursor = 'pointer';
-         map.setPaintProperty('wildfire-areas', 'fill-opacity', 0.85);
-         map.setPaintProperty('wildfire-outline', 'line-width', 2.5);
-       });
-
-       map.on('mouseleave', 'wildfire-areas', () => {
-         map.getCanvas().style.cursor = '';
-         map.setPaintProperty('wildfire-areas', 'fill-opacity', 0.65);
-         map.setPaintProperty('wildfire-outline', 'line-width', 1.5);
-       });
-
-        map.on('click', 'wildfire-fill', (e) => {
-          const props = e.features[0].properties || {};
-          const title = props.name || props.title || props.id || 'Feature';
-          new mapboxgl.Popup({ offset: 20 })
-            .setLngLat(e.lngLat)
-            .setHTML(`<strong>${title}</strong>`)
-            .addTo(map);
+        map.addSource('wildfires', {
+          type: 'geojson',
+          data: demoData
         });
+        addLayersToMap();
+      };
 
-        map.on('mouseenter', 'wildfire-fill', () => {
-          map.getCanvas().style.cursor = 'pointer';
+      if (!tilesetId) {
+        map.addSource('wildfires', {
+          type: 'geojson',
+          data: demoData
         });
+        addLayersToMap();
+        return;
+      }
 
-        map.on('mouseleave', 'wildfire-fill', () => {
-          map.getCanvas().style.cursor = '';
-        });
+      map.addSource('wildfires', {
+        type: 'vector',
+        url: tilesetUrl
+      });
+
+      const onSourceData = (e) => {
+        if (e.sourceId !== 'wildfires' || !e.isSourceLoaded) return;
+        map.off('sourcedata', onSourceData);
+        try {
+          addLayersToMap(sourceLayer);
+        } catch (err) {
+          console.warn('Tileset layer add failed, switching to demo data:', err);
+          loadDemoFallback();
+        }
+      };
+
+      map.on('sourcedata', onSourceData);
+
+      setTimeout(() => {
+        if (!map.getLayer('wildfire-fill')) {
+          console.warn('Tileset did not render; using demo fallback.');
+          loadDemoFallback();
+        }
+      }, 7000);
+    });
+  </script>
+</body>
+</html>
