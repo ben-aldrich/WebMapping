@@ -148,8 +148,7 @@
   </div>
 
   <div class="hint">
-    Open with <code>?tileset=username.tilesetid&amp;source-layer=layername</code>.
-    The slider is display-only; it does not filter the map.
+    This map is broken right now. I am working on fixing it!
   </div>
 
   <script>
@@ -291,12 +290,11 @@
 
       map.on('sourcedata', onSourceData);
 
-      setTimeout(() => {
-        if (!map.getLayer('wildfire-fill')) {
-          console.warn('Tileset did not render; using demo fallback.');
-          loadDemoFallback();
-        }
-      }, 7000);
+       setTimeout(() => {
+         if (!map.getLayer('wildfire-fill')) {
+           loadDemoFallback();
+         }
+       }, 7000);
     });
   </script>
 </body>
