@@ -1,301 +1,515 @@
-<!doctype html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Wildfire in the PNW</title>
-  <script src="https://api.mapbox.com/mapbox-gl-js/v3.24.0/mapbox-gl.js"></script>
-  <link href="https://api.mapbox.com/mapbox-gl-js/v3.24.0/mapbox-gl.css" rel="stylesheet" />
-  <style>
-    * {
-      box-sizing: border-box;
-    }
+  <!doctype html>
+  <html lang="en">
+    <head>
+      <meta charset="UTF-8" />
+      <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      <title>Wildfire in the PNW prod</title>
+      <!--    Mapbox Libraries-->
+      <script src="https://api.mapbox.com/mapbox-gl-js/v3.24.0/mapbox-gl.js"></script>
+      <link
+        href="https://api.mapbox.com/mapbox-gl-js/v3.24.0/mapbox-gl.css"
+        rel="stylesheet"
+      />
+      <!--    Google Fonts connection-->
+      <link rel="preconnect" href="https://fonts.googleapis.com" />
+      <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+      <link
+        href="https://fonts.googleapis.com/css2?family=Libre+Franklin:ital,wght@0,100..900;1,100..900&display=swap"
+        rel="stylesheet"
+      />
 
-    html,
-    body {
-      margin: 0;
-      width: 100%;
-      height: 100%;
-      overflow: hidden;
-      background: #0f0f0f;
-      font-family: 'Courier Prime', monospace;
-    }
+      <style>
+        * {
+          box-sizing: border-box;
+          font-family:
+            Libre Franklin,
+            sans-serif;
+        }
 
-    #map {
-      position: absolute;
-      inset: 0;
-    }
+        html,
+        body {
+          margin: 0;
+          width: 100%;
+          height: 100%;
+          overflow: hidden;
+          background: #0f0f0f;
+          font-family: 'Courier Prime', monospace;
+        }
 
-    .sidebar {
-      position: absolute;
-      top: 20px;
-      left: 20px;
-      z-index: 2;
-      width: 260px;
-      padding: 12px 14px;
-      color: #fff;
-      background: rgba(0, 0, 0, 0.62);
-      border: 1px solid rgba(255, 255, 255, 0.08);
-      backdrop-filter: blur(4px);
-    }
+        #map {
+          position: absolute;
+          inset: 0;
+        }
 
-    .title {
-      margin-bottom: 10px;
-      color: #ff4444;
-      font-family: 'Poppins', system-ui, sans-serif;
-      font-size: 22px;
-      font-weight: 900;
-      line-height: 1.05;
-      letter-spacing: -0.5px;
-      text-transform: uppercase;
-    }
+        .sidebar {
+          position: relative;
+          top: 20px;
+          left: 20px;
+          z-index: 2;
+          width: 260px;
+          padding: 12px 14px;
+          color: #fff;
+          background: rgba(0, 0, 0, 0.62);
+          /*border: 0px solid rgba(255, 255, 255, 0.08);*/
+          backdrop-filter: blur(5px);
+        }
 
-    .year-section {
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-    }
+        .databar {
+          position: relative;
+          /*top: 40px;*/
+          left: 20px;
+          z-index: 2;
+          width: 260px;
+          padding: 12px 14px;
+          color: #fff;
+          background: rgba(0, 0, 0, 0.62);
+          border: 1px solid rgba(255, 255, 255, 0);
+          backdrop-filter: blur(8px);
+        }
 
-    .year-label {
-      font-size: 10px;
-      color: #aaa;
-      text-transform: uppercase;
-      letter-spacing: 1px;
-      font-weight: 700;
-    }
+        .legend-title {
+          margin-bottom: 10px;
+          color: #ff4a13;
+          font-family: 'Libre Franklin', system-ui, sans-serif;
+          font-size: 18px;
+          font-weight: 900;
+          line-height: 1.05;
+          letter-spacing: -0.5px;
+          text-transform: uppercase;
+        }
 
-    .year-slider {
-      width: 100%;
-      -webkit-appearance: none;
-      appearance: none;
-      height: 3px;
-      border-radius: 999px;
-      background: rgba(255, 68, 68, 0.25);
-      outline: none;
-    }
+        .legend-item {
+          display: flex;
+          align-items: center;
+          gap: 10px;
+          margin-top: 8px;
+          margin-bottom: 10px;
+          font-size: 12px;
+          color: #ddd;
+        }
 
-    .year-slider::-webkit-slider-thumb {
-      -webkit-appearance: none;
-      appearance: none;
-      width: 12px;
-      height: 12px;
-      border-radius: 50%;
-      background: #ff4444;
-      cursor: grab;
-      box-shadow: 0 0 8px rgba(255, 68, 68, 0.4);
-    }
+        .legend-swatch {
+          width: 16px;
+          height: 16px;
+          border: 1px solid rgb(255 255 255 / 0.1);
+          flex: 0 0 16px;
+        }
 
-    .year-slider::-moz-range-thumb {
-      width: 12px;
-      height: 12px;
-      border: 0;
-      border-radius: 50%;
-      background: #ff4444;
-      cursor: grab;
-      box-shadow: 0 0 8px rgba(255, 68, 68, 0.4);
-    }
+        .legend-swatch.highlighted {
+          background: #ff4a13;
+        }
 
-    .year-display {
-      font-size: 12px;
-      color: #ddd;
-      display: flex;
-      justify-content: space-between;
-    }
+        .legend-swatch.blank {
+          background: #5d2e29;
+        }
+        .reset {
+          position: relative;
+          top: 20px;
+          left: 20px;
+          padding: 12px 14px;
+          z-index: 2;
+        }
+        .timeline-bar {
+          position: fixed;
+          left: 15%;
+          right: 15%;
+          bottom: 5%;
+          z-index: 3;
+          padding: 14px 20px 18px;
+          color: #fff;
+          background: rgba(0, 0, 0, 0.72);
+          border-top: 1px solid rgba(255, 255, 255, 0.08);
+          backdrop-filter: blur(5px);
+        }
 
-    .year-marks {
-      display: flex;
-      justify-content: space-between;
-      font-size: 9px;
-      color: #777;
-    }
+        .title {
+          margin-bottom: 10px;
+          color: #ff4a13;
+          font-family: 'Libre Franklin', system-ui, sans-serif;
+          font-size: 22px;
+          font-weight: 900;
+          line-height: 1.05;
+          letter-spacing: -0.5px;
+          text-transform: uppercase;
+        }
 
-    .hint {
-      position: absolute;
-      right: 20px;
-      top: 20px;
-      z-index: 2;
-      max-width: 320px;
-      padding: 12px 14px;
-      color: #fff;
-      background: rgba(0, 0, 0, 0.62);
-      border: 1px solid rgba(255, 255, 255, 0.08);
-      font-size: 13px;
-      line-height: 1.4;
-    }
+        .year-section {
+          display: flex;
+          flex-direction: column;
+          gap: 8px;
+          width: 100%;
+        }
 
-    /* Popup styles intentionally omitted while the map is being stabilized. */
-  </style>
-</head>
-<body>
-  <div id="map"></div>
+        .year-label {
+          font-size: 10px;
+          color: #aaa;
+          text-transform: uppercase;
+          letter-spacing: 1px;
+          font-weight: 700;
+        }
 
-  <div class="sidebar">
-    <div class="title">wildfire<br />in the pnw</div>
-    <div class="year-section">
-      <label class="year-label" for="yearSlider">drag to shift years</label>
-      <input type="range" min="1980" max="2025" value="2022" class="year-slider" id="yearSlider" />
-      <div class="year-display">
-        <span>Year</span>
-        <span id="yearValue">2022</span>
+        .year-slider {
+          width: 100%;
+          -webkit-appearance: none;
+          appearance: none;
+          height: 3px;
+          border-radius: 999px;
+          background: rgb(117 60 43);
+          outline: none;
+        }
+
+        .year-slider::-webkit-slider-thumb {
+          -webkit-appearance: none;
+          appearance: none;
+          width: 12px;
+          height: 12px;
+          border-radius: 50%;
+          background: #ff4a13ff;
+          cursor: grab;
+          box-shadow: 0 0 8px rgb(94 48 34);
+        }
+
+        .year-slider::-moz-range-thumb {
+          width: 12px;
+          height: 12px;
+          border: 0;
+          border-radius: 50%;
+          background: #ff4a13ff;
+          cursor: grab;
+          box-shadow: 0 0 8px rgb(99 51 37);
+        }
+
+        .year-display {
+          font-size: 12px;
+          color: #ddd;
+          display: flex;
+          justify-content: space-between;
+        }
+
+        /*note in the top right*/
+        .hint {
+          position: absolute;
+          right: 20px;
+          top: 20px;
+          z-index: 2;
+          max-width: 320px;
+          padding: 12px 14px;
+          color: #fff;
+          background: rgba(0, 0, 0, 0.62);
+          border: 1px solid rgba(255, 255, 255, 0.08);
+          font-size: 13px;
+          line-height: 1.4;
+          backdrop-filter: blur(5px);
+        }
+        .year-controls {
+          display: flex;
+          align-items: center;
+          gap: 10px;
+        }
+
+        .year-btn {
+          background: rgba(255, 74, 19, 0.2);
+          border: 1px solid rgba(255, 74, 19, 0.5);
+          color: #ff4a13;
+          width: 26px;
+          height: 26px;
+          border-radius: 4px;
+          cursor: pointer;
+          font-size: 14px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          flex-shrink: 0;
+          transition: background 0.15s;
+        }
+
+        .year-btn:hover {
+          background: rgba(255, 74, 19, 0.45);
+        }
+      </style>
+    </head>
+    <body>
+      <div id="map"></div>
+
+      <div
+        style="display: flex; flex-direction: column; gap: 24px; max-width: 300px"
+      >
+        <div class="sidebar">
+          <div
+            class="title"
+            style="
+              font-weight: bold;
+              font-size: 1.5rem;
+              text-transform: uppercase;
+            "
+          >
+            wildfire<br />in the pnw
+          </div>
+
+          <div
+            class="legend-title"
+            style="
+              margin: 16px 0 8px 0;
+              font-weight: 600;
+              text-transform: uppercase;
+              opacity: 0.7;
+            "
+          >
+            legend
+          </div>
+
+          <div
+            class="legend-item"
+            style="
+              display: flex;
+              align-items: center;
+              gap: 8px;
+              margin-bottom: 8px;
+            "
+          >
+            <div
+              class="legend-swatch highlighted"
+              style="width: 16px; height: 16px; background-color: #ff4d4d"
+            ></div>
+            <span>Fires from specified year</span>
+          </div>
+
+          <div
+            class="legend-item"
+            style="display: flex; align-items: center; gap: 8px"
+          >
+            <div
+              class="legend-swatch blank"
+              style="width: 16px; height: 16px; background-color: #5d2e29"
+            ></div>
+            <span>Other Fires</span>
+          </div>
+        </div>
+
+        <div class="databar" style="padding-top: 16px">
+          <div class="legend-title" style="font-weight: 600">
+            click on a fire for more details
+          </div>
+        </div>
       </div>
-      <div class="year-marks">
-        <span>1980</span>
-        <span>1995</span>
-        <span>2010</span>
-        <span>2025</span>
+
+      <div class ="reset">
+        <button class="year-btn" id="resetBtn">Reset View</button>
       </div>
-    </div>
-  </div>
 
-  <div class="hint">
-    This map is broken right now. I am working on fixing it!
-  </div>
+      <div class="timeline-bar">
+        <div class="year-section">
+          <label class="year-label" for="yearSlider"
+            >drag to change highlighted year</label
+          >
+          <div class="year-controls">
+            <button class="year-btn" id="yearDown"><</button>
+            <input
+              type="range"
+              min="2020"
+              max="2025"
+              value="2020"
+              step="1"
+              class="year-slider"
+              id="yearSlider"
+            />
+            <button class="year-btn" id="yearUp">></button>
+          </div>
+          <div class="year-display">
+            <span>Year</span>
+            <span id="yearValue">2020</span>
+          </div>
+        </div>
+      </div>
 
-  <script>
-    mapboxgl.accessToken = 'pk.eyJ1IjoiYmVuYWxkcjMiLCJhIjoiY21uaHg5YnIyMDdlbzJycTRtY2R2aGRrYyJ9.sqoJ4mnoaaRnjwBUMLJitw';
+      <div class="hint">
+        This map is increasingly less broken right now. I am still working on
+        fixing it!
+      </div>
 
-    const params = new URLSearchParams(window.location.search);
-    const tilesetId = (params.get('tileset') || 'benaldr3.ce3ktv16').trim();
-    const sourceLayer = (params.get('source-layer') || params.get('layer') || 'data').trim();
-    const map = new mapboxgl.Map({
-      container: 'map',
-      style: 'mapbox://styles/mapbox/dark-v11',
-      center: [-120.5, 45.5],
-      zoom: 6
-    });
+      <script>
+        mapboxgl.accessToken =
+          'pk.eyJ1IjoiYmVuYWxkcjMiLCJhIjoiY21uaHg5YnIyMDdlbzJycTRtY2R2aGRrYyJ9.sqoJ4mnoaaRnjwBUMLJitw';
 
-    map.addControl(new mapboxgl.NavigationControl({ showCompass: false }), 'bottom-left');
+        const map = new mapboxgl.Map({
+          container: 'map',
+          style: 'mapbox://styles/benaldr3/cmpd6jq1e002j01so1so9arpb',
+          center: [-121, 45],
+          zoom: 5.5,
+          minZoom: 4,
+          maxZoom: 13,
+          maxBounds: [
+            [-132, 38],
+            [-110, 50],
+          ],
+          customAttribution: "Data from NIFC"
+        });
+        map.addControl(
+                new mapboxgl.NavigationControl({
+                  showCompass: true,
+                }),
+                'bottom-left',
+        );
 
-    const yearSlider = document.getElementById('yearSlider');
-    const yearValue = document.getElementById('yearValue');
-    yearSlider.addEventListener('input', (e) => {
-      yearValue.textContent = e.target.value;
-    });
+        let hoveredPolygonId = null;
 
-    const demoData = {
-      type: 'FeatureCollection',
-      features: [
-        {
-          type: 'Feature',
-          properties: { name: 'Demo Fire A' },
-          geometry: {
-            type: 'Polygon',
-            coordinates: [[[-120.8, 45.2], [-120.2, 45.2], [-120.2, 45.7], [-120.8, 45.7], [-120.8, 45.2]]]
-          }
-        },
-        {
-          type: 'Feature',
-          properties: { name: 'Demo Fire B' },
-          geometry: {
-            type: 'Polygon',
-            coordinates: [[[-121.5, 45.9], [-121.0, 45.9], [-121.0, 46.25], [-121.5, 46.25], [-121.5, 45.9]]]
-          }
+        function buildYearFilter(selectedYear) {
+          return [
+            'all',
+            ['>=', ['to-number', ['get', 'attr_Cre_1']], selectedYear * 10000],
+            [
+              '<',
+              ['to-number', ['get', 'attr_Cre_1']],
+              (selectedYear + 1) * 10000,
+            ],
+          ];
         }
-      ]
-    };
+        let initialCenter, initialZoom, initialBearing, initialPitch;
 
-    function addLayersToMap(layerName) {
-      if (!map.getLayer('wildfire-fill')) {
-        map.addLayer({
-          id: 'wildfire-fill',
-          type: 'fill',
-          source: 'wildfires',
-          ...(layerName ? { 'source-layer': layerName } : {}),
-          paint: {
-            'fill-color': '#cc4444',
-            'fill-opacity': 0.6
+        map.on('load', () => {
+          const slider = document.getElementById('yearSlider');
+          const yearValue = document.getElementById('yearValue');
+          initialCenter  = map.getCenter();
+          initialZoom    = map.getZoom();
+          initialBearing = map.getBearing();
+          initialPitch   = map.getPitch();
+
+
+          // ✅ Move source + layer setup inside load
+          map.addSource('fires', {
+            type: 'vector',
+            url: 'mapbox://benaldr3.ce3ktv16',
+            promoteId: 'GlobalID',
+          });
+
+          map.addLayer({
+            id: 'poly_Incid',
+            type: 'fill',
+            source: 'fires',
+            'source-layer': 'Mapbox-2adn41', // ✅ required for vector tilesets
+            paint: {
+              'fill-color': '#ff4a13',
+              'fill-opacity': [
+                'case',
+                ['boolean', ['feature-state', 'hover'], false],
+                1,
+                0.7,
+              ],
+            },
+          });
+
+          function applyYearFilter() {
+            const selectedYear = parseInt(slider.value, 10);
+            yearValue.textContent = selectedYear;
+            const filter = buildYearFilter(selectedYear);
+            map.setFilter('poly_Incid', filter); // ✅ only one layer now
           }
+
+          slider.addEventListener('input', applyYearFilter);
+          applyYearFilter();
+
+          document.getElementById('yearDown').addEventListener('click', () => {
+            if (slider.value > slider.min) {
+              slider.value = parseInt(slider.value) - 1;
+              applyYearFilter();
+            }
+          });
+
+          document.getElementById('yearUp').addEventListener('click', () => {
+            if (slider.value < slider.max) {
+              slider.value = parseInt(slider.value) + 1;
+              applyYearFilter();
+            }
+          });
+
+          document.getElementById('resetBtn').addEventListener('click', () => {
+            map.flyTo({
+              center:   initialCenter,
+              zoom:     initialZoom,
+              bearing:  initialBearing,
+              pitch:    initialPitch,
+              duration: 1200,
+            });
+          })
+          map.on('mousemove', 'poly_Incid', (e) => {
+            map.getCanvas().style.cursor = 'pointer';
+            if (!e.features.length) return;
+
+            if (hoveredPolygonId !== null) {
+              map.setFeatureState(
+                {
+                  source: 'fires',
+                  sourceLayer: 'Mapbox-2adn41',
+                  id: hoveredPolygonId,
+                },
+                { hover: false },
+              );
+            }
+
+            hoveredPolygonId = e.features[0].id;
+            map.setFeatureState(
+              {
+                source: 'fires',
+                sourceLayer: 'Mapbox-2adn41',
+                id: hoveredPolygonId,
+              },
+              { hover: true },
+            );
+          });
+
+          map.on('mouseleave', 'poly_Incid', () => {
+            map.getCanvas().style.cursor = '';
+            if (hoveredPolygonId !== null) {
+              map.setFeatureState(
+                {
+                  source: 'fires',
+                  sourceLayer: 'Mapbox-2adn41',
+                  id: hoveredPolygonId,
+                },
+                { hover: false },
+              );
+            }
+            hoveredPolygonId = null;
+          });
+          map.on('click', 'poly_Incid', (e) => {
+            if (!e.features.length) return;
+
+            const props = e.features[0].properties;
+
+            // attr_Cre_1 is a YYYYMMDD number — format it nicely
+            const rawDate = String(props.attr_Cre_1 ?? '');
+            const dateStr =
+              rawDate.length === 8
+                ? `${rawDate.slice(0, 4)}-${rawDate.slice(4, 6)}-${rawDate.slice(6, 8)}`
+                : 'Unknown';
+
+            const databar = document.querySelector('.databar');
+            databar.innerHTML = `
+      <div class="legend-title" style="font-weight:600">
+        ${props.attr_Inci ?? props.poly_Incid ?? 'Fire Details'}
+      </div>
+      <div style="font-size:12px; color:#ddd; line-height:1.8; margin-top:8px;">
+        <div><span style="color:#aaa">Report Date:</span> ${dateStr}</div>
+        <div><span style="color:#aaa">Acres:</span> ${props.poly_Acres != null ? Number(props.poly_Acres).toLocaleString() : 'N/A'}</div>
+        <div><span style="color:#aaa">County:</span> ${props.attr_POOCi ?? 'N/A'}</div>
+        <div><span style="color:#aaa">Agency:</span> ${props.attr_Agen ?? 'N/A'}</div>
+      </div>
+    `;
+            const bounds = e.features[0].geometry.coordinates[0].reduce(
+              (b, coord) => b.extend(coord),
+              new mapboxgl.LngLatBounds(
+                e.features[0].geometry.coordinates[0][0],
+                e.features[0].geometry.coordinates[0][0],
+              ),
+            );
+
+            map.fitBounds(bounds, {
+              padding: 200,
+              pitch: 40,
+              duration: 1200,
+            });
+          });
         });
-      }
-
-      if (!map.getLayer('wildfire-outline')) {
-        map.addLayer({
-          id: 'wildfire-outline',
-          type: 'line',
-          source: 'wildfires',
-          ...(layerName ? { 'source-layer': layerName } : {}),
-          paint: {
-            'line-color': '#ffb3b3',
-            'line-width': 1.5,
-            'line-opacity': 0.8
-          }
-        });
-      }
-
-      map.on('mouseenter', 'wildfire-fill', () => {
-        map.getCanvas().style.cursor = 'pointer';
-      });
-
-      map.on('mouseleave', 'wildfire-fill', () => {
-        map.getCanvas().style.cursor = '';
-      });
-
-      map.on('click', 'wildfire-fill', (e) => {
-        const props = (e.features && e.features[0] && e.features[0].properties) || {};
-        const title = props.name || props.title || props.id || 'Feature';
-        new mapboxgl.Popup({ offset: 20 })
-          .setLngLat(e.lngLat)
-          .setHTML(`<strong>${title}</strong>`)
-          .addTo(map);
-      });
-    }
-
-    map.on('load', () => {
-      const tilesetUrl = `mapbox://${tilesetId}`;
-      let usedFallback = false;
-
-      const loadDemoFallback = () => {
-        if (usedFallback) return;
-        usedFallback = true;
-
-        try {
-          if (map.getLayer('wildfire-fill')) map.removeLayer('wildfire-fill');
-          if (map.getLayer('wildfire-outline')) map.removeLayer('wildfire-outline');
-          if (map.getSource('wildfires')) map.removeSource('wildfires');
-        } catch (err) {
-          console.warn('Cleanup before fallback failed:', err);
-        }
-
-        map.addSource('wildfires', {
-          type: 'geojson',
-          data: demoData
-        });
-        addLayersToMap();
-      };
-
-      if (!tilesetId) {
-        map.addSource('wildfires', {
-          type: 'geojson',
-          data: demoData
-        });
-        addLayersToMap();
-        return;
-      }
-
-      map.addSource('wildfires', {
-        type: 'vector',
-        url: tilesetUrl
-      });
-
-      const onSourceData = (e) => {
-        if (e.sourceId !== 'wildfires' || !e.isSourceLoaded) return;
-        map.off('sourcedata', onSourceData);
-        try {
-          addLayersToMap(sourceLayer);
-        } catch (err) {
-          console.warn('Tileset layer add failed, switching to demo data:', err);
-          loadDemoFallback();
-        }
-      };
-
-      map.on('sourcedata', onSourceData);
-
-       setTimeout(() => {
-         if (!map.getLayer('wildfire-fill')) {
-           loadDemoFallback();
-         }
-       }, 7000);
-    });
-  </script>
-</body>
-</html>
+      </script>
+    </body>
+  </html>

@@ -2,7 +2,7 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <title>Wildfire in the PNW</title>
+    <title>Wildfire in the PNW testbench</title>
     <meta
             name="viewport"
             content="initial-scale=1,maximum-scale=1,user-scalable=no"
@@ -50,34 +50,59 @@
 
       map.on('load', () => {
         map.addSource('fires', {
-          'type': 'tileset',
-          'data': 'https://console.mapbox.com/studio/tilesets/benaldr3.ce3ktv16',
+          'type': 'vector',
+          'url': 'mapbox://benaldr3.ce3ktv16',
+          'promoteId': 'GlobalID'
         });
         map.addLayer({
           'id': 'poly_Acres',
           'type': 'fill',
-          'source': 'poly_Incid',
+          'source': 'fires',
+          'source-layer': 'Mapbox-2adn41',
           'layout': {},
           'paint': {
-            'fill-color': '#627BC1',
+            'fill-color': "#FF4444",
             'fill-opacity': [
               'case',
               ['boolean', ['feature-state', 'hover'], false],
               1,
-              0.5
+              0.3
             ]
           }
         });
 
-        map.addLayer({
-          'id': 'poly_Incid',
-          'type': 'line',
-          'source': 'poly_Polyg',
-          'layout': {},
-          'paint': {
-            'line-color': '#627BC1',
-            'line-width': 2
+        map.on('mousemove', 'poly_Acres', (e) => {
+          map.getCanvas().style.cursor = 'pointer';
+
+          if (!e.features.length) {
+            return;
           }
+
+          if (hoveredPolygonId !== null) {
+            map.setFeatureState(
+              { source: 'fires', sourceLayer: 'Mapbox-2adn41', id: hoveredPolygonId },
+              { hover: false },
+            );
+          }
+
+          hoveredPolygonId = e.features[0].id;
+          map.setFeatureState(
+            { source: 'fires', sourceLayer: 'Mapbox-2adn41', id: hoveredPolygonId },
+            { hover: true },
+          );
+        });
+
+        map.on('mouseleave', 'poly_Acres', () => {
+          map.getCanvas().style.cursor = '';
+
+          if (hoveredPolygonId !== null) {
+            map.setFeatureState(
+              { source: 'fires', sourceLayer: 'Mapbox-2adn41', id: hoveredPolygonId },
+              { hover: false },
+            );
+          }
+
+          hoveredPolygonId = null;
         });
       });
     </script>
