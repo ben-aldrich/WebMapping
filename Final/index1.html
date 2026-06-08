@@ -1,309 +1,337 @@
-  <!doctype html>
-  <html lang="en">
-    <head>
-      <meta charset="UTF-8" />
-      <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-      <title>Wildfire in the PNW</title>
-      <!--    Mapbox Libraries-->
-      <script src="https://api.mapbox.com/mapbox-gl-js/v3.24.0/mapbox-gl.js"></script>
-      <link
-        href="https://api.mapbox.com/mapbox-gl-js/v3.24.0/mapbox-gl.css"
-        rel="stylesheet"
-      />
-      <!--    Google Fonts connection-->
-      <link rel="preconnect" href="https://fonts.googleapis.com" />
-      <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-      <link
-        href="https://fonts.googleapis.com/css2?family=Libre+Franklin:ital,wght@0,100..900;1,100..900&display=swap"
-        rel="stylesheet"
-      />
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Wildfire in the PNW</title>
+    <!--    Mapbox Libraries-->
+    <script src="https://api.mapbox.com/mapbox-gl-js/v3.24.0/mapbox-gl.js"></script>
+    <link
+      href="https://api.mapbox.com/mapbox-gl-js/v3.24.0/mapbox-gl.css"
+      rel="stylesheet"
+    />
+    <!--    Google Fonts connection-->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Libre+Franklin:ital,wght@0,100..900;1,100..900&display=swap"
+      rel="stylesheet"
+    />
 
-      <style>
-        * {
-          box-sizing: border-box;
-          font-family:
-            Libre Franklin,
-            sans-serif;
-        }
+    <style>
+      * {
+        box-sizing: border-box;
+        font-family:
+          Libre Franklin,
+          sans-serif;
+      }
 
-        html,
-        body {
-          margin: 0;
-          width: 100%;
-          height: 100%;
-          overflow: hidden;
-          background: #0f0f0f;
-          font-family: 'Courier Prime', monospace;
-        }
+      html,
+      body {
+        margin: 0;
+        width: 100%;
+        height: 100%;
+        overflow: hidden;
+        background: #0f0f0f;
+        font-family: 'Courier Prime', monospace;
+      }
 
-        #map {
-          position: absolute;
-          inset: 0;
-        }
+      #map {
+        position: absolute;
+        inset: 0;
+      }
 
-        .sidebar {
-          position: relative;
-          top: 20px;
-          left: 20px;
-          z-index: 2;
-          width: 260px;
-          padding: 12px 14px;
-          color: #fff;
-          background: rgba(0, 0, 0, 0.62);
-          /*border: 0px solid rgba(255, 255, 255, 0.08);*/
-          backdrop-filter: blur(5px);
-        }
+      /*title and legend*/
+      .sidebar {
+        position: relative;
+        top: 20px;
+        left: 20px;
+        z-index: 2;
+        width: 260px;
+        padding: 12px 14px;
+        color: #fff;
+        background: rgba(0, 0, 0, 0.62);
+        /*border: 0px solid rgba(255, 255, 255, 0.08);*/
+        backdrop-filter: blur(5px);
+      }
 
-        .databar {
-          position: relative;
-          /*top: 40px;*/
-          left: 20px;
-          z-index: 2;
-          width: 260px;
-          padding: 12px 14px;
-          color: #fff;
-          background: rgba(0, 0, 0, 0.62);
-          border: 1px solid rgba(255, 255, 255, 0);
-          backdrop-filter: blur(8px);
-        }
+      /*Metadata display sidebar*/
+      .databar {
+        position: relative;
+        /*top: 40px;*/
+        left: 20px;
+        z-index: 2;
+        width: 260px;
+        padding: 12px 14px;
+        color: #fff;
+        background: rgba(0, 0, 0, 0.62);
+        border: 1px solid rgba(255, 255, 255, 0);
+        backdrop-filter: blur(8px);
+      }
 
-        .legend-title {
-          margin-bottom: 10px;
-          color: #ff4a13;
-          font-family: 'Libre Franklin', system-ui, sans-serif;
-          font-size: 18px;
-          font-weight: 900;
-          line-height: 1.05;
-          letter-spacing: -0.5px;
-          text-transform: uppercase;
-        }
+      .legend-title {
+        margin-bottom: 10px;
+        color: #ff4a13;
+        font-family: 'Libre Franklin', system-ui, sans-serif;
+        font-size: 18px;
+        font-weight: 900;
+        line-height: 1.05;
+        letter-spacing: -0.5px;
+        text-transform: uppercase;
+      }
 
-        .legend-item {
-          display: flex;
-          align-items: center;
-          gap: 10px;
-          margin-top: 8px;
-          margin-bottom: 10px;
-          font-size: 12px;
-          color: #ddd;
-        }
+      .legend-item {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin-top: 8px;
+        margin-bottom: 10px;
+        font-size: 12px;
+        color: #ddd;
+      }
 
-        .legend-swatch {
-          width: 16px;
-          height: 16px;
-          border: 1px solid rgb(255 255 255 / 0.1);
-          flex: 0 0 16px;
-        }
+      .legend-swatch {
+        width: 16px;
+        height: 16px;
+        border: 1px solid rgb(255 255 255 / 0.1);
+        flex: 0 0 16px;
+      }
 
-        .legend-swatch.highlighted {
-          background: #ff4a13;
-        }
+      .legend-swatch.highlighted {
+        background: #ff4a13;
+      }
 
-        .legend-swatch.blank {
-          background: #5d2e29;
-        }
-        .reset {
-          position: relative;
-          top: 10px;
-          left: 20px;
-          padding: 10px 10px;
-          z-index: 2;
-        }
-        .timeline-bar {
-          position: fixed;
-          left: 15%;
-          right: 15%;
-          bottom: 5%;
-          z-index: 3;
-          padding: 14px 20px 18px;
-          color: #fff;
-          background: rgba(0, 0, 0, 0.72);
-          border-top: 1px solid rgba(255, 255, 255, 0.08);
-          backdrop-filter: blur(5px);
-        }
+      .legend-swatch.blank {
+        background: #5d2e29;
+      }
+      .reset {
+        position: relative;
+        top: 10px;
+        left: 20px;
+        padding: 10px 10px;
+        z-index: 2;
+      }
+      .timeline-bar {
+        position: fixed;
+        left: 15%;
+        right: 15%;
+        bottom: 5%;
+        z-index: 3;
+        padding: 14px 20px 18px;
+        color: #fff;
+        background: rgba(0, 0, 0, 0.72);
+        border-top: 1px solid rgba(255, 255, 255, 0.08);
+        backdrop-filter: blur(5px);
+      }
 
-        .title {
-          margin-bottom: 10px;
-          color: #ff4a13;
-          font-family: 'Libre Franklin', system-ui, sans-serif;
-          font-size: 22px;
-          font-weight: 900;
-          line-height: 1.05;
-          letter-spacing: -0.5px;
-          text-transform: uppercase;
-        }
+      .title {
+        margin-bottom: 10px;
+        color: #ff4a13;
+        font-family: 'Libre Franklin', system-ui, sans-serif;
+        font-size: 22px;
+        font-weight: 900;
+        line-height: 1.05;
+        letter-spacing: -0.5px;
+        text-transform: uppercase;
+      }
 
-        .year-section {
-          display: flex;
-          flex-direction: column;
-          gap: 8px;
-          width: 100%;
-        }
+      .year-section {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        width: 100%;
+      }
 
-        .year-label {
-          font-size: 10px;
-          color: #aaa;
-          text-transform: uppercase;
-          letter-spacing: 1px;
-          font-weight: 700;
-        }
+      .year-label {
+        font-size: 10px;
+        color: #aaa;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        font-weight: 700;
+      }
 
-        .year-slider {
-          width: 100%;
-          -webkit-appearance: none;
-          appearance: none;
-          height: 3px;
-          border-radius: 999px;
-          background: rgb(117 60 43);
-          outline: none;
-        }
+      .slider-wrap {
+        position: relative;
+        flex: 1;
+      }
 
-        .year-slider::-webkit-slider-thumb {
-          -webkit-appearance: none;
-          appearance: none;
-          width: 12px;
-          height: 12px;
-          border-radius: 50%;
-          background: #ff4a13ff;
-          cursor: grab;
-          box-shadow: 0 0 8px rgb(94 48 34);
-        }
+      .year-ticks {
+        position: absolute;
+        left: 6px;
+        right: 6px;
+        top: 100%;
+        margin-top: 4px;
+        display: flex;
+        justify-content: space-between;
+        pointer-events: none;
+      }
 
-        .year-slider::-moz-range-thumb {
-          width: 12px;
-          height: 12px;
-          border: 0;
-          border-radius: 50%;
-          background: #ff4a13ff;
-          cursor: grab;
-          box-shadow: 0 0 8px rgb(99 51 37);
-        }
+      .year-ticks span {
+        width: 1px;
+        height: 6px;
+        background: rgb(117 60 43);
+      }
 
-        .year-display {
-          font-size: 12px;
-          color: #ddd;
-          display: flex;
-          justify-content: space-between;
-        }
+      .year-slider {
+        width: 100%;
+        -webkit-appearance: none;
+        appearance: none;
+        height: 3px;
+        border-radius: 999px;
+        background: rgb(117 60 43);
+        outline: none;
+      }
 
-        /*note in the top right*/
-        .hint {
-          position: absolute;
-          right: 20px;
-          top: 20px;
-          z-index: 2;
-          max-width: 320px;
-          padding: 12px 14px;
-          color: #fff;
-          background: rgba(0, 0, 0, 0.62);
-          border: 1px solid rgba(255, 255, 255, 0.08);
-          font-size: 13px;
-          line-height: 1.4;
-          backdrop-filter: blur(5px);
-        }
-        .year-controls {
-          display: flex;
-          align-items: center;
-          gap: 10px;
-        }
+      .year-slider::-webkit-slider-thumb {
+        -webkit-appearance: none;
+        appearance: none;
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+        background: #ff4a13ff;
+        cursor: grab;
+        box-shadow: 0 0 8px rgb(94 48 34);
+      }
 
-        .year-btn {
-          background: rgba(255, 74, 19, 0.2);
-          border: 1px solid rgba(255, 74, 19, 0.5);
-          color: #ff4a13;
-          width: 26px;
-          height: 26px;
-          border-radius: 4px;
-          cursor: pointer;
-          font-size: 14px;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          flex-shrink: 0;
-          transition: background 0.15s;
-        }
+      .year-slider::-moz-range-thumb {
+        width: 12px;
+        height: 12px;
+        border: 0;
+        border-radius: 50%;
+        background: #ff4a13ff;
+        cursor: grab;
+        box-shadow: 0 0 8px rgb(99 51 37);
+      }
 
-        .year-btn:hover {
-          background: rgba(255, 74, 19, 0.45);
-        }
-      </style>
-    </head>
-    <body>
-      <div id="map"></div>
+      .year-display {
+        font-size: 12px;
+        padding-top: 10px;
+        color: #ddd;
+        display: flex;
+        justify-content: center;
+        gap: 6px;
+      }
 
-      <div
-        style="display: flex; flex-direction: column; gap: 24px; max-width: 300px"
-      >
-        <div class="sidebar">
-          <div
-            class="title"
-            style="
-              font-weight: bold;
-              font-size: 1.5rem;
-              text-transform: uppercase;
-            "
-          >
-            wildfire<br />in the pnw
-          </div>
+      /*note in the top right*/
+      .hint {
+        position: absolute;
+        right: 20px;
+        top: 20px;
+        z-index: 2;
+        max-width: 320px;
+        padding: 12px 14px;
+        color: #fff;
+        background: rgba(0, 0, 0, 0.62);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        font-size: 13px;
+        line-height: 1.4;
+        backdrop-filter: blur(5px);
+      }
+      .year-controls {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
 
-          <div
-            class="legend-title"
-            style="
-              margin: 16px 0 8px 0;
-              font-weight: 600;
-              text-transform: uppercase;
-              opacity: 0.7;
-            "
-          >
-            legend
-          </div>
+      /* year filter adjustments buttons, style borrowed by reset button*/
+      .year-btn {
+        background: rgba(255, 74, 19, 0.2);
+        border: 1px solid rgba(255, 74, 19, 0.5);
+        color: #ff4a13;
+        width: 26px;
+        height: 26px;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 14px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+        transition: background 0.15s;
+      }
+      /*changes when hovered*/
+      .year-btn:hover {
+        background: rgba(255, 74, 19, 0.45);
+      }
+    </style>
+  </head>
+  <body>
+    <div id="map"></div>
 
-          <div
-            class="legend-item"
-            style="
-              display: flex;
-              align-items: center;
-              gap: 8px;
-              margin-bottom: 8px;
-            "
-          >
-            <div
-              class="legend-swatch highlighted"
-              style="width: 16px; height: 16px; background-color: #ff4d4d"
-            ></div>
-            <span>Fires from specified year</span>
-          </div>
-
-          <div
-            class="legend-item"
-            style="display: flex; align-items: center; gap: 8px"
-          >
-            <div
-              class="legend-swatch blank"
-              style="width: 16px; height: 16px; background-color: #5d2e29"
-            ></div>
-            <span>Other Fires</span>
-          </div>
+    <div
+      style="display: flex; flex-direction: column; gap: 24px; max-width: 300px"
+    >
+      <div class="sidebar">
+        <div
+          class="title"
+          style="
+            font-weight: bold;
+            font-size: 1.5rem;
+            text-transform: uppercase;
+          "
+        >
+          wildfire<br />in the pnw
         </div>
 
-        <div class="databar" style="padding-top: 16px">
-          <div class="legend-title" style="font-weight: 600">
-            click on a fire for more details
-          </div>
+        <div
+          class="legend-title"
+          style="
+            margin: 16px 0 8px 0;
+            font-weight: 600;
+            text-transform: uppercase;
+            opacity: 0.7;
+          "
+        >
+          legend
+        </div>
+
+        <div
+          class="legend-item"
+          style="
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 8px;
+          "
+        >
+          <div
+            class="legend-swatch highlighted"
+            style="width: 16px; height: 16px; background-color: #ff4a13"
+          ></div>
+          <span>Fires from specified year</span>
+        </div>
+
+        <div
+          class="legend-item"
+          style="display: flex; align-items: center; gap: 8px"
+        >
+          <div
+            class="legend-swatch blank"
+            style="width: 16px; height: 16px; background-color: #5d2e29"
+          ></div>
+          <span>Other Fires</span>
         </div>
       </div>
 
-      <div class ="reset">
-        <button class="year-btn" id="resetBtn">Reset View</button>
+      <div class="databar" style="padding-top: 16px">
+        <div class="legend-title" style="font-weight: 600">
+          click on a fire for more details
+        </div>
       </div>
+    </div>
 
-      <div class="timeline-bar">
-        <div class="year-section">
-          <label class="year-label" for="yearSlider"
-            >drag to change highlighted year</label
-          >
-          <div class="year-controls">
-            <button class="year-btn" id="yearDown"><</button>
+    <div class="reset">
+      <button class="year-btn" id="resetBtn">&#x26F6;</button>
+    </div>
+
+    <div class="timeline-bar">
+      <div class="year-section">
+        <label class="year-label" for="yearSlider"
+          >drag to change highlighted year</label
+        >
+        <div class="year-controls">
+          <button class="year-btn" id="yearDown"><</button>
+          <div class="slider-wrap">
             <input
               type="range"
               min="2020"
@@ -313,178 +341,208 @@
               class="year-slider"
               id="yearSlider"
             />
-            <button class="year-btn" id="yearUp">></button>
+            <div class="year-ticks">
+              <span></span>
+              <span></span>
+              <span></span>
+              <span></span>
+              <span></span>
+              <span></span>
+            </div>
           </div>
-          <div class="year-display">
-            <span>Year</span>
-            <span id="yearValue">2020</span>
-          </div>
+          <button class="year-btn" id="yearUp">></button>
+        </div>
+        <div class="year-display">
+          <span style="font-weight: bold">Year:</span>
+          <span id="yearValue">2020</span>
         </div>
       </div>
+    </div>
 
-      <div class="hint">
-        This map is increasingly less broken right now. I am still working on
-        fixing it!
-      </div>
+    <div class="hint">
+      This map is increasingly less broken right now. I am still working on
+      fixing it!
+    </div>
 
-      <script>
-        mapboxgl.accessToken =
-          'pk.eyJ1IjoiYmVuYWxkcjMiLCJhIjoiY21uaHg5YnIyMDdlbzJycTRtY2R2aGRrYyJ9.sqoJ4mnoaaRnjwBUMLJitw';
+    <script>
+      mapboxgl.accessToken =
+        'pk.eyJ1IjoiYmVuYWxkcjMiLCJhIjoiY21uaHg5YnIyMDdlbzJycTRtY2R2aGRrYyJ9.sqoJ4mnoaaRnjwBUMLJitw';
 
-        const map = new mapboxgl.Map({
-          container: 'map',
-          style: 'mapbox://styles/benaldr3/cmpd6jq1e002j01so1so9arpb',
-          center: [-121, 45],
-          zoom: 5.5,
-          minZoom: 4,
-          maxZoom: 13,
-          maxBounds: [
-            [-132, 38],
-            [-110, 50],
+      const map = new mapboxgl.Map({
+        container: 'map',
+        style: 'mapbox://styles/benaldr3/cmpd6jq1e002j01so1so9arpb', // custom background layer
+        center: [-121, 45],
+        zoom: 5.5,
+        minZoom: 4,
+        maxZoom: 13,
+        maxBounds: [
+          [-132, 38],
+          [-110, 50],
+        ],
+        customAttribution: 'Data from NIFC',
+      });
+      map.addControl(
+        new mapboxgl.NavigationControl({
+          showCompass: true,
+        }),
+        'bottom-left',
+      );
+
+      let hoveredPolygonId = null;
+
+      // year of a feature = floor(attr_Cre_1 / 10000), since attr_Cre_1 is YYYYMMDD - THIS FUNCTION GENERATED WITH AI
+      function buildYearOpacity(selectedYear) {
+        return [
+          'case',
+          // hovered feature is always fully opaque
+          ['boolean', ['feature-state', 'hover'], false],
+          1,
+          // fires from the selected year stay highlighted
+          [
+            '==',
+            ['floor', ['/', ['to-number', ['get', 'attr_Cre_1']], 10000]],
+            selectedYear,
           ],
-          customAttribution: "Data from NIFC"
+          0.7,
+          // other years fade back but remain visible/clickable
+          0.12,
+        ];
+      }
+      let initialCenter, initialZoom, initialBearing, initialPitch;
+
+      map.on('load', () => {
+        const slider = document.getElementById('yearSlider');
+        const yearValue = document.getElementById('yearValue');
+        initialCenter = map.getCenter();
+        initialZoom = map.getZoom();
+        initialBearing = map.getBearing();
+        initialPitch = map.getPitch();
+
+        map.addSource('fires', {
+          type: 'vector',
+          url: 'mapbox://benaldr3.ce3ktv16', // my data tileset layer
+          promoteId: 'GlobalID',
         });
-        map.addControl(
-                new mapboxgl.NavigationControl({
-                  showCompass: true,
-                }),
-                'bottom-left',
-        );
 
-        let hoveredPolygonId = null;
-
-        function buildYearFilter(selectedYear) {
-          return [
-            'all',
-            ['>=', ['to-number', ['get', 'attr_Cre_1']], selectedYear * 10000],
-            [
-              '<',
-              ['to-number', ['get', 'attr_Cre_1']],
-              (selectedYear + 1) * 10000,
+        map.addLayer({
+          id: 'poly_Incid',
+          type: 'fill',
+          source: 'fires',
+          'source-layer': 'Mapbox-2adn41',
+          paint: {
+            'fill-color': [
+              'case',
+              ['boolean', ['feature-state', 'hover'], false],
+              '#ffd23f', // hover color
+              '#ff4a13', // filter color
             ],
-          ];
+            'fill-opacity': buildYearOpacity(2020),
+          },
+        });
+
+        function applyYearFilter() {
+          const selectedYear = parseInt(slider.value, 10);
+          yearValue.textContent = selectedYear;
+          // minimal opacity when filtered out, now they stay 'live' and clickable
+          map.setPaintProperty(
+            'poly_Incid',
+            'fill-opacity',
+            buildYearOpacity(selectedYear),
+          );
         }
-        let initialCenter, initialZoom, initialBearing, initialPitch;
 
-        map.on('load', () => {
-          const slider = document.getElementById('yearSlider');
-          const yearValue = document.getElementById('yearValue');
-          initialCenter  = map.getCenter();
-          initialZoom    = map.getZoom();
-          initialBearing = map.getBearing();
-          initialPitch   = map.getPitch();
+        slider.addEventListener('input', applyYearFilter);
+        applyYearFilter();
 
-
-          // ✅ Move source + layer setup inside load
-          map.addSource('fires', {
-            type: 'vector',
-            url: 'mapbox://benaldr3.ce3ktv16',
-            promoteId: 'GlobalID',
-          });
-
-          map.addLayer({
-            id: 'poly_Incid',
-            type: 'fill',
-            source: 'fires',
-            'source-layer': 'Mapbox-2adn41', // ✅ required for vector tilesets
-            paint: {
-              'fill-color': '#ff4a13',
-              'fill-opacity': [
-                'case',
-                ['boolean', ['feature-state', 'hover'], false],
-                1,
-                0.7,
-              ],
-            },
-          });
-
-          function applyYearFilter() {
-            const selectedYear = parseInt(slider.value, 10);
-            yearValue.textContent = selectedYear;
-            const filter = buildYearFilter(selectedYear);
-            map.setFilter('poly_Incid', filter); // ✅ only one layer now
+        document.getElementById('yearDown').addEventListener('click', () => {
+          if (slider.value > slider.min) {
+            slider.value = parseInt(slider.value) - 1; // read slider position and bump value down
+            applyYearFilter();
           }
+        });
 
-          slider.addEventListener('input', applyYearFilter);
-          applyYearFilter();
+        document.getElementById('yearUp').addEventListener('click', () => {
+          if (slider.value < slider.max) {
+            slider.value = parseInt(slider.value) + 1; // read slider position and bump value up
+            applyYearFilter();
+          }
+        });
 
-          document.getElementById('yearDown').addEventListener('click', () => {
-            if (slider.value > slider.min) {
-              slider.value = parseInt(slider.value) - 1;
-              applyYearFilter();
-            }
+        document.getElementById('resetBtn').addEventListener('click', () => {
+          map.flyTo({
+            center: initialCenter, // this was in response to some weirdness with maxbounds
+            zoom: initialZoom, // and default view interactions, kinda(?) fixed it
+            bearing: initialBearing,
+            pitch: initialPitch,
+            duration: 1200,
           });
+        });
+        map.on('mousemove', 'poly_Incid', (e) => {
+          map.getCanvas().style.cursor = 'pointer';
+          if (!e.features.length) return;
 
-          document.getElementById('yearUp').addEventListener('click', () => {
-            if (slider.value < slider.max) {
-              slider.value = parseInt(slider.value) + 1;
-              applyYearFilter();
-            }
-          });
-
-          document.getElementById('resetBtn').addEventListener('click', () => {
-            map.flyTo({
-              center:   initialCenter,
-              zoom:     initialZoom,
-              bearing:  initialBearing,
-              pitch:    initialPitch,
-              duration: 1200,
-            });
-          })
-          map.on('mousemove', 'poly_Incid', (e) => {
-            map.getCanvas().style.cursor = 'pointer';
-            if (!e.features.length) return;
-
-            if (hoveredPolygonId !== null) {
-              map.setFeatureState(
-                {
-                  source: 'fires',
-                  sourceLayer: 'Mapbox-2adn41',
-                  id: hoveredPolygonId,
-                },
-                { hover: false },
-              );
-            }
-
-            hoveredPolygonId = e.features[0].id;
+          if (hoveredPolygonId !== null) {
             map.setFeatureState(
               {
                 source: 'fires',
                 sourceLayer: 'Mapbox-2adn41',
                 id: hoveredPolygonId,
               },
-              { hover: true },
+              { hover: false },
             );
-          });
+          }
 
-          map.on('mouseleave', 'poly_Incid', () => {
-            map.getCanvas().style.cursor = '';
-            if (hoveredPolygonId !== null) {
-              map.setFeatureState(
-                {
-                  source: 'fires',
-                  sourceLayer: 'Mapbox-2adn41',
-                  id: hoveredPolygonId,
-                },
-                { hover: false },
-              );
-            }
-            hoveredPolygonId = null;
-          });
-          map.on('click', 'poly_Incid', (e) => {
-            if (!e.features.length) return;
+          hoveredPolygonId = e.features[0].id;
+          map.setFeatureState(
+            {
+              source: 'fires',
+              sourceLayer: 'Mapbox-2adn41',
+              id: hoveredPolygonId,
+            },
+            { hover: true },
+          );
+        });
 
-            const props = e.features[0].properties;
+        map.on('mouseleave', 'poly_Incid', () => {
+          map.getCanvas().style.cursor = '';
+          if (hoveredPolygonId !== null) {
+            map.setFeatureState(
+              {
+                source: 'fires',
+                sourceLayer: 'Mapbox-2adn41',
+                id: hoveredPolygonId,
+              },
+              { hover: false },
+            );
+          }
+          hoveredPolygonId = null;
+        });
+        map.on('click', 'poly_Incid', (e) => {
+          if (!e.features.length) return;
 
-            // attr_Cre_1 is a YYYYMMDD number — format it nicely
-            const rawDate = String(props.attr_Cre_1 ?? '');
-            const dateStr =
-              rawDate.length === 8
-                ? `${rawDate.slice(0, 4)}-${rawDate.slice(4, 6)}-${rawDate.slice(6, 8)}`
-                : 'Unknown';
+          const props = e.features[0].properties;
 
-            const databar = document.querySelector('.databar');
-            databar.innerHTML = `
+          // attr_Cre_1 is a YYYYMMDD number — format it nicely
+          const rawDate = String(props.attr_Cre_1 ?? '');
+
+          // move the year filter to the clicked fire's year
+          const fireYear = Math.floor(Number(props.attr_Cre_1) / 10000);
+          if (
+            !Number.isNaN(fireYear) &&
+            fireYear >= Number(slider.min) &&
+            fireYear <= Number(slider.max)
+          ) {
+            slider.value = fireYear;
+            applyYearFilter();
+          }
+
+          const dateStr =
+            rawDate.length === 8
+              ? `${rawDate.slice(0, 4)}-${rawDate.slice(4, 6)}-${rawDate.slice(6, 8)}`
+              : 'Unknown';
+
+          const databar = document.querySelector('.databar');
+          databar.innerHTML = `
       <div class="legend-title" style="font-weight:600">
         ${props.attr_Inci ?? props.poly_Incid ?? 'Fire Details'}
       </div>
@@ -495,21 +553,21 @@
         <div><span style="color:#aaa">Agency:</span> ${props.attr_Agen ?? 'N/A'}</div>
       </div>
     `;
-            const bounds = e.features[0].geometry.coordinates[0].reduce(
-              (b, coord) => b.extend(coord),
-              new mapboxgl.LngLatBounds(
-                e.features[0].geometry.coordinates[0][0],
-                e.features[0].geometry.coordinates[0][0],
-              ),
-            );
+          const bounds = e.features[0].geometry.coordinates[0].reduce(
+            (b, coord) => b.extend(coord),
+            new mapboxgl.LngLatBounds(
+              e.features[0].geometry.coordinates[0][0],
+              e.features[0].geometry.coordinates[0][0],
+            ),
+          );
 
-            map.fitBounds(bounds, {
-              padding: 200,
-              pitch: 40,
-              duration: 1200,
-            });
+          map.fitBounds(bounds, {
+            padding: 200,
+            pitch: 40,
+            duration: 1200,
           });
         });
-      </script>
-    </body>
-  </html>
+      });
+    </script>
+  </body>
+</html>
