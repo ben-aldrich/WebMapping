@@ -111,6 +111,11 @@
         padding: 10px 10px;
         z-index: 2;
       }
+
+      #resetBtn {
+        font-size: 20px;
+      }
+
       .timeline-bar {
         position: fixed;
         left: 15%;
@@ -253,6 +258,24 @@
       .year-btn:hover {
         background: rgba(255, 74, 19, 0.45);
       }
+
+      /* On narrow screens the top-left column and top-right hint can't sit
+         side by side, so stack the hint in normal flow under the column. */
+      @media (max-width: 640px) {
+        .sidebar,
+        .databar {
+          width: auto;
+          max-width: none;
+        }
+
+        .hint {
+          position: static;
+          right: auto;
+          top: auto;
+          max-width: none;
+          margin: 12px 20px 0;
+        }
+      }
     </style>
   </head>
   <body>
@@ -321,7 +344,7 @@
     </div>
 
     <div class="reset">
-      <button class="year-btn" id="resetBtn">&#x26F6;</button>
+      <button class="year-btn" id="resetBtn">&#x2922;</button>
     </div>
 
     <div class="timeline-bar">
@@ -360,8 +383,7 @@
     </div>
 
     <div class="hint">
-      This map is increasingly less broken right now. I am still working on
-      fixing it!
+      From 2020 to 2025, wildfires shaped the landscape of the Pacific Northwest. Use the slider to see footprint by year, or click into an individual fire to learn more.
     </div>
 
     <script>
@@ -469,7 +491,7 @@
         });
 
         document.getElementById('resetBtn').addEventListener('click', () => {
-          map.flyTo({
+          map.easeTo({ // flyto was juddering with maxbounds, easeTo seems to play nicer
             center: initialCenter, // this was in response to some weirdness with maxbounds
             zoom: initialZoom, // and default view interactions, kinda(?) fixed it
             bearing: initialBearing,
@@ -522,10 +544,10 @@
 
           const props = e.features[0].properties;
 
-          // attr_Cre_1 is a YYYYMMDD number — format it nicely
+          // attr_Cre_1 is YYYYMMDD
           const rawDate = String(props.attr_Cre_1 ?? '');
 
-          // move the year filter to the clicked fire's year
+          // index year filter to clicked fire's year
           const fireYear = Math.floor(Number(props.attr_Cre_1) / 10000);
           if (
             !Number.isNaN(fireYear) &&
@@ -536,10 +558,17 @@
             applyYearFilter();
           }
 
+          // show a value or fall back to N/A — used for every detail field
+          const na = (v) => v ?? 'N/A';
+
           const dateStr =
             rawDate.length === 8
               ? `${rawDate.slice(0, 4)}-${rawDate.slice(4, 6)}-${rawDate.slice(6, 8)}`
-              : 'Unknown';
+              : null;
+          const acres =
+            props.poly_Acres != null
+              ? Number(props.poly_Acres).toLocaleString()
+              : null;
 
           const databar = document.querySelector('.databar');
           databar.innerHTML = `
@@ -547,10 +576,9 @@
         ${props.attr_Inci ?? props.poly_Incid ?? 'Fire Details'}
       </div>
       <div style="font-size:12px; color:#ddd; line-height:1.8; margin-top:8px;">
-        <div><span style="color:#aaa">Report Date:</span> ${dateStr}</div>
-        <div><span style="color:#aaa">Acres:</span> ${props.poly_Acres != null ? Number(props.poly_Acres).toLocaleString() : 'N/A'}</div>
-        <div><span style="color:#aaa">Town:</span> ${props.attr_POOCi ?? 'N/A'}</div>
-        <div><span style="color:#aaa">Agency:</span> ${props.attr_Agen ?? 'N/A'}</div>
+        <div><span style="color:#aaa">Report Date:</span> ${na(dateStr)}</div>
+        <div><span style="color:#aaa">Acres:</span> ${na(acres)}</div>
+        <div><span style="color:#aaa">Town:</span> ${na(props.attr_POOCi)}</div>
       </div>
     `;
           const bounds = e.features[0].geometry.coordinates[0].reduce(
