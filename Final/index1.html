@@ -136,7 +136,6 @@
         font-size: 22px;
         font-weight: 900;
         line-height: 1.05;
-        letter-spacing: -0.5px;
         text-transform: uppercase;
       }
 
@@ -168,7 +167,6 @@
         margin-top: 4px;
         display: flex;
         justify-content: space-between;
-        pointer-events: none;
       }
 
       .year-ticks span {
@@ -184,9 +182,9 @@
         height: 3px;
         border-radius: 999px;
         background: rgb(117 60 43);
-        outline: none;
       }
 
+      /*these were styled with AI*/
       .year-slider::-webkit-slider-thumb {
         -webkit-appearance: none;
         appearance: none;
@@ -207,7 +205,7 @@
         cursor: grab;
         box-shadow: 0 0 8px rgb(99 51 37);
       }
-
+      /*end styled with AI*/
       .year-display {
         font-size: 12px;
         padding-top: 10px;
@@ -259,8 +257,7 @@
         background: rgba(255, 74, 19, 0.45);
       }
 
-      /* On narrow screens the top-left column and top-right hint can't sit
-         side by side, so stack the hint in normal flow under the column. */
+      /* Wrap context box under legend, title on vertical aspect ratio display */
       @media (max-width: 640px) {
         .sidebar,
         .databar {
@@ -364,6 +361,7 @@
               class="year-slider"
               id="yearSlider"
             />
+<!--            empty span batch lets me write shapes onto the page crudely-->
             <div class="year-ticks">
               <span></span>
               <span></span>
@@ -382,8 +380,12 @@
       </div>
     </div>
 
+<!--context box with blurb-->
     <div class="hint">
-      From 2020 to 2025, wildfires shaped the landscape of the Pacific Northwest. Use the slider to see footprint by year, or click into an individual fire to learn more.
+      From 2020 to 2025, wildfires reshaped the landscape of the Pacific
+      Northwest. Burns have become increasingly destructive as the climate warms
+      year over year. Use the slider to see footprint by year, or click into an
+      individual fire to learn more.
     </div>
 
     <script>
@@ -401,15 +403,19 @@
           [-132, 38],
           [-110, 50],
         ],
-        customAttribution: 'Data from NIFC',
+        customAttribution:
+          '<a href="https://data-nifc.opendata.arcgis.com/datasets/5e72b1699bf74eefb3f3aff6f4ba5511_0/explore?location=44.172170%2C-116.699524%2C6" target="_blank" rel="noopener nofollow" >Data from NIFC</a>',
       });
-      map.addControl(
-        new mapboxgl.NavigationControl({
-          showCompass: true,
-        }),
-        'bottom-left',
-      );
 
+      // Ended up turning these off as I found them redundant once I added the reset view button. Keeping them here in case
+      // map.addControl(
+      //   new mapboxgl.NavigationControl({
+      //     showCompass: true,
+      //   }),
+      //   'bottom-left',
+      // );
+
+// setup hover handler
       let hoveredPolygonId = null;
 
       // year of a feature = floor(attr_Cre_1 / 10000), since attr_Cre_1 is YYYYMMDD - THIS FUNCTION GENERATED WITH AI
@@ -430,33 +436,35 @@
           0.12,
         ];
       }
+      // END FUNCTION WITH AI
+
       let initialCenter, initialZoom, initialBearing, initialPitch;
 
       map.on('load', () => {
         const slider = document.getElementById('yearSlider');
         const yearValue = document.getElementById('yearValue');
-        initialCenter = map.getCenter();
+        initialCenter = map.getCenter(); // pull initial map state for "reset" function later
         initialZoom = map.getZoom();
         initialBearing = map.getBearing();
         initialPitch = map.getPitch();
 
-        map.addSource('fires', {
+        map.addSource('fires', { // adds my tileset data to the script
           type: 'vector',
-          url: 'mapbox://benaldr3.ce3ktv16', // my data tileset layer
+          url: 'mapbox://benaldr3.ce3ktv16', // my data tileset layer ID
           promoteId: 'GlobalID',
         });
 
-        map.addLayer({
-          id: 'poly_Incid',
+        map.addLayer({ // adds my tileset to the map
+          id: 'poly_Incid', // this was the best "unique identifier" field I was able to find
           type: 'fill',
           source: 'fires',
           'source-layer': 'Mapbox-2adn41',
           paint: {
-            'fill-color': [
-              'case',
-              ['boolean', ['feature-state', 'hover'], false],
+            'fill-color': [ // variable fill color based on hover state
+              'case', // specifies it's a case
+              ['boolean', ['feature-state', 'hover'], false], // boolean of the feature's hover state, default false
               '#ffd23f', // hover color
-              '#ff4a13', // filter color
+              '#ff4a13', // filtered color
             ],
             'fill-opacity': buildYearOpacity(2020),
           },
@@ -491,7 +499,8 @@
         });
 
         document.getElementById('resetBtn').addEventListener('click', () => {
-          map.easeTo({ // flyto was juddering with maxbounds, easeTo seems to play nicer
+          map.easeTo({
+            // flyto was juddering with maxbounds, easeTo seems to play nicer
             center: initialCenter, // this was in response to some weirdness with maxbounds
             zoom: initialZoom, // and default view interactions, kinda(?) fixed it
             bearing: initialBearing,
@@ -514,14 +523,14 @@
             );
           }
 
-          hoveredPolygonId = e.features[0].id;
+          hoveredPolygonId = e.features[0].id; // sets the id of hoveredpolygon equal to the id from the feature set
           map.setFeatureState(
             {
               source: 'fires',
               sourceLayer: 'Mapbox-2adn41',
               id: hoveredPolygonId,
             },
-            { hover: true },
+            { hover: true }, // apply hover effect
           );
         });
 
@@ -563,7 +572,7 @@
 
           const dateStr =
             rawDate.length === 8
-              ? `${rawDate.slice(0, 4)}-${rawDate.slice(4, 6)}-${rawDate.slice(6, 8)}`
+              ? `${rawDate.slice(0, 4)}-${rawDate.slice(4, 6)}-${rawDate.slice(6, 8)}` // slice out the date
               : null;
           const acres =
             props.poly_Acres != null
@@ -584,15 +593,15 @@
           const bounds = e.features[0].geometry.coordinates[0].reduce(
             (b, coord) => b.extend(coord),
             new mapboxgl.LngLatBounds(
-              e.features[0].geometry.coordinates[0][0],
+              e.features[0].geometry.coordinates[0][0], // pulls geometry bounds coords
               e.features[0].geometry.coordinates[0][0],
             ),
           );
 
           map.fitBounds(bounds, {
-            padding: 200,
-            pitch: 40,
-            duration: 1200,
+            padding: 200, // adds padding for new bounds for zoom in
+            pitch: 40, // pitch over for 3D
+            duration: 1200, // adjusts transition timing
           });
         });
       });
